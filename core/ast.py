@@ -21,3 +21,7 @@ class AST:
     def validate_grammar(self):
         # Валидация аксиомы и правил
         pass
+
+    def traverse(self, visitor):
+        """Обход дерева с помощью Visitor."""
+        return self.ast_root.accept(visitor)

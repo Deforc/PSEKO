@@ -12,3 +12,6 @@ class TreeNode:
         self.nonterminal_type = nonterminal_type
         self.attribute = attribute
         self.childs = []
+
+    def accept(self, visitor):
+        return visitor.visit(self)
