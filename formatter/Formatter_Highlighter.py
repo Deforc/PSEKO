@@ -1,5 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass
+import re
 
 class NodeType(Enum):
     NONTERMINAL = 1
@@ -15,7 +16,7 @@ class TreeNode:
         self.children = children if children is not None else []  # Инициализация children
 
 class Formatter:
-    def __init__(self, style='line'):
+    def __init__(self, style='tree'):
         self.style = style
 
     def format(self, ast):
@@ -43,9 +44,12 @@ class Formatter:
         if node.type == NodeType.TERMINAL:
             result.append(f"{indent}{node.value if node.value is not None else node.attribute}")
         else:
-            result.append(f"{indent}{node.nonterminal_type}:")
+            result.append(f"{indent}{node.nonterminal_type}")
             for child in node.children:
-                result.append(self._format_ladder(child, level + 1))
+                if child.attribute in ['END_IF', 'END_FOR', 'END_WHILE', 'END_FUNC', 'END_PROC', 'END_ITERATOR']:
+                    result.append(self._format_ladder(child, level))
+                else:
+                    result.append(self._format_ladder(child, level + 1))
         return '\n'.join(result)
 
     def _format_tree(self, node, level=0):
@@ -57,7 +61,10 @@ class Formatter:
         else:
             result.append(f"{indent}{connector}{node.nonterminal_type}")
             for child in node.children:
-                result.append(self._format_tree(child, level + 1))
+                if child.attribute in ['END_IF', 'END_FOR', 'END_WHILE', 'END_FUNC', 'END_PROC', 'END_ITERATOR']:
+                    result.append(self._format_tree(child, level))
+                else:
+                    result.append(self._format_tree(child, level + 1))
         return '\n'.join(result)
 
 class Highlighter:
@@ -67,7 +74,9 @@ class Highlighter:
     def highlight(self, text):
         highlighted_text = text
         for token, color in self.color_rules.items():
-            highlighted_text = highlighted_text.replace(token, self._apply_color(token, color))
+            # Используем регулярное выражение для поиска токена, даже если он окружен другими символами
+            pattern = re.compile(r'\b' + re.escape(token) + r'\b')
+            highlighted_text = pattern.sub(self._apply_color(token, color), highlighted_text)
         return highlighted_text
 
     def _apply_color(self, text, color):
@@ -86,36 +95,43 @@ class Highlighter:
 
 # Пример использования
 if __name__ == "__main__":
-    # Создаем пример AST для предоставленного кода
+    # Создаем пример AST для сортировки пузырьком
     ast = TreeNode(
         node_type=NodeType.NONTERMINAL,
         nonterminal_type='Program',
         children=[
-            TreeNode(node_type=NodeType.TERMINAL, attribute='Assignment', value='z : 30'),
-            TreeNode(
-                node_type=NodeType.NONTERMINAL,
-                nonterminal_type='IF',
-                children=[
-                    TreeNode(node_type=NodeType.TERMINAL, attribute='Condition', value='z == 15'),
-                    TreeNode(node_type=NodeType.TERMINAL, attribute='THEN', value='THEN'),  # Добавлен THEN
-                    TreeNode(node_type=NodeType.TERMINAL, attribute='Output', value='OUTPUT "z равно 15"'),
-                    TreeNode(node_type=NodeType.TERMINAL, attribute='ELSE', value='ELSE'),  # Добавлен ELSE
-                    TreeNode(node_type=NodeType.TERMINAL, attribute='Output', value='OUTPUT "z не равно 15"')
-                ]
-            ),
             TreeNode(
                 node_type=NodeType.NONTERMINAL,
                 nonterminal_type='FOR',
                 children=[
-                    TreeNode(node_type=NodeType.TERMINAL, attribute='Loop', value='i FROM 1 TO 3'),
-                    TreeNode(node_type=NodeType.TERMINAL, attribute='DO', value='DO'),  # Добавлен DO
-                    TreeNode(node_type=NodeType.TERMINAL, attribute='Output', value='OUTPUT "Итерация: " + i')
+                    TreeNode(node_type=NodeType.TERMINAL, attribute='Loop', value='i FROM 0 TO n - 1'),
+                    TreeNode(node_type=NodeType.TERMINAL, attribute='DO', value='DO'),
+                    TreeNode(
+                        node_type=NodeType.NONTERMINAL,
+                        nonterminal_type='FOR',
+                        children=[
+                            TreeNode(node_type=NodeType.TERMINAL, attribute='Loop', value='j FROM 0 TO n - i - 2'),
+                            TreeNode(node_type=NodeType.TERMINAL, attribute='DO', value='DO'),
+                            TreeNode(
+                                node_type=NodeType.NONTERMINAL,
+                                nonterminal_type='IF',
+                                children=[
+                                    TreeNode(node_type=NodeType.TERMINAL, attribute='Condition', value='arr[j] > arr[j + 1]'),
+                                    TreeNode(node_type=NodeType.TERMINAL, attribute='THEN', value='THEN'),
+                                    TreeNode(node_type=NodeType.TERMINAL, attribute='Action', value='SWAP(arr[j], arr[j + 1])'),
+                                    TreeNode(node_type=NodeType.TERMINAL, attribute='END_IF', value='END_IF')
+                                ]
+                            ),
+                            TreeNode(node_type=NodeType.TERMINAL, attribute='END_FOR', value='END_FOR')
+                        ]
+                    ),
+                    TreeNode(node_type=NodeType.TERMINAL, attribute='END_FOR', value='END_FOR')
                 ]
             )
         ]
     )
 
-    formatter = Formatter(style='tree')
+    formatter = Formatter(style='ladder')
     formatted_text = formatter.format(ast)
     print("Formatted Text:")
     print(formatted_text)
