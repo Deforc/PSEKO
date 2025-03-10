@@ -12,8 +12,8 @@ class TreeNode:
         self.type = node_type
         self.nonterminal_type = nonterminal_type
         self.attribute = attribute
-        self.value = value  # Новое поле value
-        self.children = children if children is not None else []  # Инициализация children
+        self.value = value
+        self.children = children if children is not None else []
 
 class Formatter:
     def __init__(self, style='tree'):
@@ -74,7 +74,6 @@ class Highlighter:
     def highlight(self, text):
         highlighted_text = text
         for token, color in self.color_rules.items():
-            # Используем регулярное выражение для поиска токена, даже если он окружен другими символами
             pattern = re.compile(r'\b' + re.escape(token) + r'\b')
             highlighted_text = pattern.sub(self._apply_color(token, color), highlighted_text)
         return highlighted_text
