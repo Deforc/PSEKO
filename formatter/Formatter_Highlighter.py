@@ -1,14 +1,18 @@
 from enum import Enum
+from dataclasses import dataclass
 
+class NodeType(Enum):
+    NONTERMINAL = 1
+    TERMINAL = 2
+
+@dataclass
 class TreeNode:
-    class Type(Enum):
-        TOKEN = 0
-        NONTERMINAL = 1
-
-    def __init__(self, type, attribute=None, children=None):
-        self.type = type
-        self.attribute = attribute  # Значение узла (если терминал)
-        self.children = children if children is not None else []  # Дочерние узлы
+    def __init__(self, node_type, nonterminal_type=None, attribute=None, value=None, children=None):
+        self.type = node_type
+        self.nonterminal_type = nonterminal_type
+        self.attribute = attribute
+        self.value = value  # Новое поле value
+        self.children = children if children is not None else []  # Инициализация children
 
 class Formatter:
     def __init__(self, style='line'):
@@ -26,8 +30,8 @@ class Formatter:
 
     def _format_line(self, node):
         result = []
-        if node.type == TreeNode.Type.TOKEN:
-            result.append(node.attribute)
+        if node.type == NodeType.TERMINAL:
+            result.append(node.value if node.value is not None else node.attribute)
         else:
             for child in node.children:
                 result.append(self._format_line(child))
@@ -36,10 +40,10 @@ class Formatter:
     def _format_ladder(self, node, level=0):
         result = []
         indent = ' ' * 4 * level
-        if node.type == TreeNode.Type.TOKEN:
-            result.append(f"{indent}{node.attribute}")
+        if node.type == NodeType.TERMINAL:
+            result.append(f"{indent}{node.value if node.value is not None else node.attribute}")
         else:
-            result.append(f"{indent}{node.attribute}:")
+            result.append(f"{indent}{node.nonterminal_type}:")
             for child in node.children:
                 result.append(self._format_ladder(child, level + 1))
         return '\n'.join(result)
@@ -48,10 +52,10 @@ class Formatter:
         result = []
         indent = ' ' * 4 * level
         connector = '|-- ' if level > 0 else ''
-        if node.type == TreeNode.Type.TOKEN:
-            result.append(f"{indent}{connector}{node.attribute}")
+        if node.type == NodeType.TERMINAL:
+            result.append(f"{indent}{connector}{node.value if node.value is not None else node.attribute}")
         else:
-            result.append(f"{indent}{connector}{node.attribute}")
+            result.append(f"{indent}{connector}{node.nonterminal_type}")
             for child in node.children:
                 result.append(self._format_tree(child, level + 1))
         return '\n'.join(result)
@@ -62,8 +66,8 @@ class Highlighter:
 
     def highlight(self, text):
         highlighted_text = text
-        for token_type, color in self.color_rules.items():
-            highlighted_text = highlighted_text.replace(token_type, self._apply_color(token_type, color))
+        for token, color in self.color_rules.items():
+            highlighted_text = highlighted_text.replace(token, self._apply_color(token, color))
         return highlighted_text
 
     def _apply_color(self, text, color):
@@ -82,36 +86,52 @@ class Highlighter:
 
 # Пример использования
 if __name__ == "__main__":
-    # Создаем пример AST
+    # Создаем пример AST для предоставленного кода
     ast = TreeNode(
-        type=TreeNode.Type.NONTERMINAL,
-        attribute='root',
+        node_type=NodeType.NONTERMINAL,
+        nonterminal_type='Program',
         children=[
-            TreeNode(type=TreeNode.Type.TOKEN, attribute='A'),
+            TreeNode(node_type=NodeType.TERMINAL, attribute='Assignment', value='z : 30'),
             TreeNode(
-                type=TreeNode.Type.NONTERMINAL,
-                attribute='nonterminal',
+                node_type=NodeType.NONTERMINAL,
+                nonterminal_type='IF',
                 children=[
-                    TreeNode(type=TreeNode.Type.TOKEN, attribute='B'),
-                    TreeNode(type=TreeNode.Type.TOKEN, attribute='C')
+                    TreeNode(node_type=NodeType.TERMINAL, attribute='Condition', value='z == 15'),
+                    TreeNode(node_type=NodeType.TERMINAL, attribute='THEN', value='THEN'),  # Добавлен THEN
+                    TreeNode(node_type=NodeType.TERMINAL, attribute='Output', value='OUTPUT "z равно 15"'),
+                    TreeNode(node_type=NodeType.TERMINAL, attribute='ELSE', value='ELSE'),  # Добавлен ELSE
+                    TreeNode(node_type=NodeType.TERMINAL, attribute='Output', value='OUTPUT "z не равно 15"')
+                ]
+            ),
+            TreeNode(
+                node_type=NodeType.NONTERMINAL,
+                nonterminal_type='FOR',
+                children=[
+                    TreeNode(node_type=NodeType.TERMINAL, attribute='Loop', value='i FROM 1 TO 3'),
+                    TreeNode(node_type=NodeType.TERMINAL, attribute='DO', value='DO'),  # Добавлен DO
+                    TreeNode(node_type=NodeType.TERMINAL, attribute='Output', value='OUTPUT "Итерация: " + i')
                 ]
             )
         ]
     )
 
-    formatter = Formatter(style='ladder') #line tree ladder
+    formatter = Formatter(style='tree')
     formatted_text = formatter.format(ast)
     print("Formatted Text:")
     print(formatted_text)
 
-    # Определяем правила раскраски
-    color_rules = {
-        'A': 'red',
-        'B': 'green',
-        'C': 'blue',
-        'nonterminal': 'yellow',
-        'root': 'magenta'
-    }
+    # Определяем правила раскраски для ключевых слов
+    KEYWORDS = [
+        'IF', 'THEN', 'ELSE', 'ELSEIF', 'END_IF',
+        'FOR', 'DO', 'END_FOR', 'REPEAT', 'UNTIL',
+        'WHILE', 'END_WHILE', 'FUNC', 'END_FUNC',
+        'PROC', 'END_PROC', 'ITERATOR', 'END_ITERATOR',
+        'INPUT', 'OUTPUT', 'GOTO', 'ARRAY', 'STRUCT',
+        'SELECT', 'YIELD', 'RETURN', 'NEXT', 'FROM', 'TO', 'IN'
+    ]
+
+    # Создаем правила раскраски: все ключевые слова красятся в красный
+    color_rules = {keyword: 'red' for keyword in KEYWORDS}
 
     highlighter = Highlighter(color_rules)
     highlighted_text = highlighter.highlight(formatted_text)
