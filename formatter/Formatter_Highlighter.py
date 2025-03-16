@@ -2,10 +2,12 @@ from enum import Enum
 from dataclasses import dataclass
 import re
 
+# Определение типов узлов
 class NodeType(Enum):
     NONTERMINAL = 1
     TERMINAL = 2
 
+# Класс для представления узла дерева
 @dataclass
 class TreeNode:
     def __init__(self, node_type, nonterminal_type=None, attribute=None, value=None, children=None):
@@ -15,6 +17,7 @@ class TreeNode:
         self.value = value
         self.children = children if children is not None else []
 
+# Форматировщик для преобразования AST в различные стили
 class Formatter:
     def __init__(self, style='tree'):
         self.style = style
@@ -25,7 +28,7 @@ class Formatter:
         elif self.style == 'ladder':
             return self._format_ladder(ast)
         elif self.style == 'tree':
-            return self._format_tree(ast)
+            return self._format_tree(ast)  # Теперь возвращает только текст
         else:
             raise ValueError("Unsupported style")
 
@@ -40,33 +43,202 @@ class Formatter:
 
     def _format_ladder(self, node, level=0):
         result = []
-        indent = ' ' * 4 * level
+        indent = ' ' * 4 * level  # Базовый отступ
+
         if node.type == NodeType.TERMINAL:
-            result.append(f"{indent}{node.value if node.value is not None else node.attribute}")
+            # Терминалы выводятся с базовым отступом
+            value = node.value if node.value is not None else node.attribute
+            result.append(f"{indent}{value}")
         else:
-            result.append(f"{indent}{node.nonterminal_type}")
-            for child in node.children:
-                if child.attribute in ['END_IF', 'END_FOR', 'END_WHILE', 'END_FUNC', 'END_PROC', 'END_ITERATOR']:
-                    result.append(self._format_ladder(child, level))
-                else:
-                    result.append(self._format_ladder(child, level + 1))
+            # Если узел является FOR или IF
+            if node.nonterminal_type in ['FOR', 'IF']:
+                # Выводим открывающий узел (FOR или IF)
+                result.append(f"{indent}{node.nonterminal_type}")
+
+                # Обрабатываем дочерние элементы
+                if node.children:
+                    # Первый дочерний элемент (условие или действие) выводится на той же строке
+                    if len(node.children) > 0:
+                        child_line = self._format_ladder(node.children[0], 0)
+                        result[-1] += f" {child_line}"
+
+                    # Если следующий дочерний элемент имеет атрибут "DO", выводим его на той же строке
+                    if len(node.children) > 1 and node.children[1].attribute == 'DO':
+                        child_line = self._format_ladder(node.children[1], 0)
+                        result[-1] += f" {child_line}"
+
+                    # Остальные дочерние элементы выводятся с новой строки и увеличенным отступом
+                    for child in node.children[2:]:
+                        if child.attribute in ['END_IF', 'END_FOR', 'END_WHILE', 'END_FUNC', 'END_PROC',
+                                               'END_ITERATOR']:
+                            # Закрывающие узлы выравниваются с открывающими
+                            child_line = self._format_ladder(child, level)
+                            result.append(child_line)
+                        else:
+                            # Остальные дочерние элементы выводятся с увеличенной табуляцией
+                            child_line = self._format_ladder(child, level + 1)
+                            result.append(child_line)
+            else:
+                # Для других нетерминалов просто добавляем отступ
+                result.append(f"{indent}{node.nonterminal_type}")
+
+                # Обрабатываем дочерние элементы
+                for child in node.children:
+                    if child.attribute in ['END_IF', 'END_FOR', 'END_WHILE', 'END_FUNC', 'END_PROC', 'END_ITERATOR']:
+                        # Закрывающие узлы выравниваются с открывающими
+                        child_line = self._format_ladder(child, level)
+                        result.append(child_line)
+                    else:
+                        # Остальные дочерние элементы выводятся с увеличенной табуляцией
+                        child_line = self._format_ladder(child, level + 1)
+                        result.append(child_line)
+
         return '\n'.join(result)
 
     def _format_tree(self, node, level=0):
         result = []
         indent = ' ' * 4 * level
         connector = '|-- ' if level > 0 else ''
+
         if node.type == NodeType.TERMINAL:
-            result.append(f"{indent}{connector}{node.value if node.value is not None else node.attribute}")
+            # Терминалы выводятся без окрашивания
+            value = node.value if node.value is not None else node.attribute
+            result.append(f"{indent}{connector}{value}")
         else:
-            result.append(f"{indent}{connector}{node.nonterminal_type}")
-            for child in node.children:
-                if child.attribute in ['END_IF', 'END_FOR', 'END_WHILE', 'END_FUNC', 'END_PROC', 'END_ITERATOR']:
-                    result.append(self._format_tree(child, level))
+            # Для нетерминальных узлов добавляем их тип (например, FOR, IF)
+            # Исключаем окрашивание корневого узла "Program"
+            if node.nonterminal_type == 'Program':
+                result.append(f"{indent}{node.nonterminal_type}")
+            else:
+                result.append(f"{indent}{connector}{node.nonterminal_type}")
+
+            # Обработка дочерних элементов
+            for i, child in enumerate(node.children):
+                if node.nonterminal_type in ['FOR', 'IF']:
+                    # Если это первый дочерний элемент (например, условие или действие), выводим его на той же строке
+                    if i == 0:
+                        new_line = self._format_tree(child, 0)
+                        result[-1] += f" {new_line}"
+                    elif child.attribute == 'DO':
+                        # Если следующий дочерний элемент имеет атрибут "DO", выводим его на той же строке
+                        new_line = self._format_tree(child, 0)
+                        result[-1] += f" {new_line}"
+                    else:
+                        # Остальные дочерние элементы выводятся с новой строки и увеличенным уровнем отступа
+                        if child.attribute in ['END_IF', 'END_FOR', 'END_WHILE', 'END_FUNC', 'END_PROC',
+                                               'END_ITERATOR']:
+                            # Закрывающие узлы выравниваются с открывающими
+                            new_lines = self._format_tree(child, level)
+                            result.append(new_lines)
+                        else:
+                            # Остальные дочерние элементы выводятся с увеличенной табуляцией
+                            new_lines = self._format_tree(child, level + 1)
+                            result.append(new_lines)
                 else:
-                    result.append(self._format_tree(child, level + 1))
+                    # Для других нетерминалов просто добавляем отступ
+                    if child.attribute in ['END_IF', 'END_FOR', 'END_WHILE', 'END_FUNC', 'END_PROC', 'END_ITERATOR']:
+                        # Закрывающие узлы выравниваются с открывающими
+                        new_lines = self._format_tree(child, level)
+                        result.append(new_lines)
+                    else:
+                        # Остальные дочерние элементы выводятся с увеличенной табуляцией
+                        new_lines = self._format_tree(child, level + 1)
+                        result.append(new_lines)
+
         return '\n'.join(result)
 
+    def add_line_numbers(self, text, start_line=1):
+        """
+        Добавляет нумерацию строк, начиная со второй строки.
+        :param text: Исходный текст.
+        :param start_line: Номер первой строки для нумерации.
+        :return: Текст с нумерацией строк.
+        """
+        lines = text.split('\n')
+        result = []
+
+        for i, line in enumerate(lines):
+            if i == 0:
+                # Первая строка остается без изменений
+                result.append(line)
+            else:
+                # Нумерация начинается со второй строки
+                result.append(f"{start_line + i - 1}: {line}")
+
+        return '\n'.join(result)
+
+    def to_latex(self, text):
+        """
+        Преобразует отформатированный текст в LaTeX.
+        :param text: Исходный текст.
+        :return: Текст в формате LaTeX.
+        """
+        lines = text.split('\n')
+        latex_result = []
+        latex_result.append("\\begin{enumerate}")
+
+        for line in lines:
+            # Убираем пробелы в начале строки
+            stripped_line = line.lstrip()
+            # Определяем уровень отступа
+            indent_level = (len(line) - len(stripped_line)) // 4
+
+            # Добавляем вложенность через \item и \begin{itemize}
+            latex_result.append("    " * indent_level + "\\item " + stripped_line)
+
+        latex_result.append("\\end{enumerate}")
+        return '\n'.join(latex_result)
+
+    def convert_ansi_to_latex(self, text):
+        """
+        Преобразует ANSI escape-коды в LaTeX-команды.
+        :param text: Исходный текст с ANSI-цветами.
+        :return: Текст с LaTeX-цветами.
+        """
+        # Словарь соответствия ANSI-цветов и LaTeX-цветов
+        color_mapping = {
+            '\033[91m': '\\textcolor{red}',  # Красный
+            '\033[94m': '\\textcolor{blue}',  # Синий
+            '\033[0m': '{}'  # Сброс цвета
+        }
+
+        # Заменяем ANSI-коды на LaTeX-команды
+        for ansi_code, latex_command in color_mapping.items():
+            text = text.replace(ansi_code, latex_command)
+
+        return text
+
+    def save_to_latex(self, text, filename="output.tex"):
+        """
+        Сохраняет отформатированный текст в файл LaTeX.
+        :param text: Исходный текст.
+        :param filename: Имя файла для сохранения.
+        """
+        # Преобразуем текст в LaTeX
+        latex_content = self.to_latex(text)
+
+        # Преобразуем ANSI escape-коды в LaTeX-команды
+        latex_content = self.convert_ansi_to_latex(latex_content)
+
+        # Создаем полный LaTeX-документ
+        latex_document = f"""
+        \\documentclass{{article}}
+        \\usepackage{{enumitem}}
+        \\usepackage{{xcolor}} % Для работы с цветами
+        \\begin{{document}}
+    
+        {latex_content}
+    
+        \\end{{document}}
+        """
+
+        # Сохраняем в файл
+        with open(filename, 'w', encoding='utf-8') as file:
+            file.write(latex_document)
+
+        print(f"LaTeX file saved as {filename}")
+
+# Класс для раскраски текста
 class Highlighter:
     def __init__(self, color_rules):
         self.color_rules = color_rules
@@ -76,23 +248,33 @@ class Highlighter:
         for token, color in self.color_rules.items():
             pattern = re.compile(r'\b' + re.escape(token) + r'\b')
             highlighted_text = pattern.sub(self._apply_color(token, color), highlighted_text)
+
+        # Дополнительно раскрашиваем терминалы в красный
+        highlighted_text = self._highlight_terminals(highlighted_text)
         return highlighted_text
 
     def _apply_color(self, text, color):
         # ANSI escape codes for colors
         colors = {
             'red': '\033[91m',
-            'green': '\033[92m',
-            'yellow': '\033[93m',
             'blue': '\033[94m',
-            'magenta': '\033[95m',
-            'cyan': '\033[96m',
-            'white': '\033[97m',
             'reset': '\033[0m'
         }
         return f"{colors[color]}{text}{colors['reset']}"
 
-# Пример использования
+    def _highlight_terminals(self, text):
+        # Ищем терминалы в тексте (например, значения или атрибуты)
+        lines = text.split('\n')
+        for i in range(len(lines)):
+            # Пропускаем корневой узел "Program"
+            if lines[i].strip().startswith('Program'):
+                continue
+            # Если строка содержит терминал (не начинается с ключевого слова)
+            if not any(keyword in lines[i] for keyword in self.color_rules.keys()):
+                # Окрашиваем всю строку в красный цвет
+                lines[i] = self._apply_color(lines[i], 'red')
+        return '\n'.join(lines)
+
 if __name__ == "__main__":
     # Создаем пример AST для сортировки пузырьком
     ast = TreeNode(
@@ -130,11 +312,6 @@ if __name__ == "__main__":
         ]
     )
 
-    formatter = Formatter(style='ladder')
-    formatted_text = formatter.format(ast)
-    print("Formatted Text:")
-    print(formatted_text)
-
     # Определяем правила раскраски для ключевых слов
     KEYWORDS = [
         'IF', 'THEN', 'ELSE', 'ELSEIF', 'END_IF',
@@ -145,10 +322,19 @@ if __name__ == "__main__":
         'SELECT', 'YIELD', 'RETURN', 'NEXT', 'FROM', 'TO', 'IN'
     ]
 
-    # Создаем правила раскраски: все ключевые слова красятся в красный
-    color_rules = {keyword: 'red' for keyword in KEYWORDS}
+    # Создаем правила раскраски: ключевые слова красятся в синий
+    color_rules = {keyword: 'blue' for keyword in KEYWORDS}
 
+    # Форматируем и раскрашиваем
+    formatter = Formatter(style='tree')  # Выбираем стиль tree
     highlighter = Highlighter(color_rules)
+
+    # Извлекаем только текст из результата format
+    formatted_text = formatter.format(ast)
     highlighted_text = highlighter.highlight(formatted_text)
-    print("\nHighlighted Text:")
-    print(highlighted_text)
+    numbered_text = formatter.add_line_numbers(highlighted_text)
+
+    print("Highlighted Text:")
+    print(numbered_text, "\n")
+
+    formatter.save_to_latex(numbered_text, filename="bubble_sort.tex")
