@@ -35,8 +35,15 @@ class Formatter:
     def _format_line(self, node):
         result = []
         if node.type == NodeType.TERMINAL:
-            result.append(node.value if node.value is not None else node.attribute)
+            # Терминалы выводятся без раскраски, кроме SWAP
+            value = node.value if node.value is not None else node.attribute
+            if value == 'SWAP(arr[j], arr[j + 1])':
+                result.append(f"\033[91m{value}\033[0m")  # Красный цвет
+            else:
+                result.append(value)  # Без раскраски
         else:
+            # Нетерминалы выводятся без раскраски
+            result.append(node.nonterminal_type)
             for child in node.children:
                 result.append(self._format_line(child))
         return ' '.join(result)
@@ -169,24 +176,17 @@ class Formatter:
 
     def to_latex(self, text):
         """
-        Преобразует отформатированный текст в LaTeX.
+        Преобразует отформатированный текст в LaTeX с использованием пакета listings.
         :param text: Исходный текст.
-        :return: Текст в формате LaTeX.
+        :return: Текст в формате LaTeX (только содержимое lstlisting).
         """
         lines = text.split('\n')
         latex_result = []
-        latex_result.append("\\begin{enumerate}")
 
+        # Добавляем строки текста
         for line in lines:
-            # Убираем пробелы в начале строки
-            stripped_line = line.lstrip()
-            # Определяем уровень отступа
-            indent_level = (len(line) - len(stripped_line)) // 4
+            latex_result.append(line)
 
-            # Добавляем вложенность через \item и \begin{itemize}
-            latex_result.append("    " * indent_level + "\\item " + stripped_line)
-
-        latex_result.append("\\end{enumerate}")
         return '\n'.join(latex_result)
 
     def convert_ansi_to_latex(self, text):
@@ -197,9 +197,9 @@ class Formatter:
         """
         # Словарь соответствия ANSI-цветов и LaTeX-цветов
         color_mapping = {
-            '\033[91m': '\\textcolor{red}',  # Красный
-            '\033[94m': '\\textcolor{blue}',  # Синий
-            '\033[0m': '{}'  # Сброс цвета
+            '\033[91m': '\\textcolor{red}{',  # Красный
+            '\033[94m': '\\textcolor{blue}{',  # Синий
+            '\033[0m': '}'  # Сброс цвета
         }
 
         # Заменяем ANSI-коды на LaTeX-команды
@@ -214,23 +214,21 @@ class Formatter:
         :param text: Исходный текст.
         :param filename: Имя файла для сохранения.
         """
-        # Преобразуем текст в LaTeX
-        latex_content = self.to_latex(text)
-
-        # Преобразуем ANSI escape-коды в LaTeX-команды
-        latex_content = self.convert_ansi_to_latex(latex_content)
+        # Преобразуем ANSI-коды в LaTeX-команды
+        text = self.convert_ansi_to_latex(text)
 
         # Создаем полный LaTeX-документ
-        latex_document = f"""
-        \\documentclass{{article}}
-        \\usepackage{{enumitem}}
-        \\usepackage{{xcolor}} % Для работы с цветами
-        \\begin{{document}}
-    
-        {latex_content}
-    
-        \\end{{document}}
-        """
+        latex_document = r"""
+    \documentclass{article}
+    \usepackage{xcolor} % Для работы с цветами
+    \usepackage{fancyvrb} % Для вывода текста с цветами
+
+    \begin{document}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    """ + text + r"""
+    \end{Verbatim}
+    \end{document}
+    """
 
         # Сохраняем в файл
         with open(filename, 'w', encoding='utf-8') as file:
@@ -326,7 +324,7 @@ if __name__ == "__main__":
     color_rules = {keyword: 'blue' for keyword in KEYWORDS}
 
     # Форматируем и раскрашиваем
-    formatter = Formatter(style='tree')  # Выбираем стиль tree
+    formatter = Formatter(style='line')  # line/ladder/tree
     highlighter = Highlighter(color_rules)
 
     # Извлекаем только текст из результата format
