@@ -174,7 +174,7 @@ class Formatter:
 
         return '\n'.join(result)
 
-class ZPublisher:
+class Publisher:
     def __init__(self, text):
         self.text = text
 
@@ -337,7 +337,7 @@ if __name__ == "__main__":
     highlighted_text = highlighter.highlight(formatted_text)
     numbered_text = formatter.add_line_numbers(highlighted_text)
 
-    publisher = ZPublisher(numbered_text)
+    publisher = Publisher(numbered_text)
     print("Highlighted Text:")
     print(numbered_text, "\n")
 
