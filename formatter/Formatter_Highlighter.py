@@ -174,6 +174,10 @@ class Formatter:
 
         return '\n'.join(result)
 
+class ThePublisher:
+    def __init__(self, text):
+        self.text = text
+
     def to_latex(self, text):
         """
         Преобразует отформатированный текст в LaTeX с использованием пакета listings.
@@ -324,15 +328,17 @@ if __name__ == "__main__":
     color_rules = {keyword: 'blue' for keyword in KEYWORDS}
 
     # Форматируем и раскрашиваем
-    formatter = Formatter(style='line')  # line/ladder/tree
+    formatter = Formatter(style='ladder')  # line/ladder/tree
     highlighter = Highlighter(color_rules)
+
 
     # Извлекаем только текст из результата format
     formatted_text = formatter.format(ast)
     highlighted_text = highlighter.highlight(formatted_text)
     numbered_text = formatter.add_line_numbers(highlighted_text)
 
+    publisher = ThePublisher(numbered_text)
     print("Highlighted Text:")
     print(numbered_text, "\n")
 
-    formatter.save_to_latex(numbered_text, filename="bubble_sort.tex")
+    publisher.save_to_latex(numbered_text, filename="bubble_sort.tex")

@@ -1,0 +1,19 @@
+
+    \documentclass{article}
+    \usepackage{xcolor} % Для работы с цветами
+    \usepackage{fancyvrb} % Для вывода текста с цветами
+
+    \begin{document}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    Program
+1:     |-- \textcolor{blue}{FOR} i \textcolor{blue}{FROM} 0 \textcolor{blue}{TO} n - 1 \textcolor{blue}{DO}
+2:         |-- \textcolor{blue}{FOR} j \textcolor{blue}{FROM} 0 \textcolor{blue}{TO} n - i - 2 \textcolor{blue}{DO}
+3:             |-- \textcolor{blue}{IF} arr[j] > arr[j + 1]
+4:                 |-- \textcolor{blue}{THEN}
+5: \textcolor{red}{                |-- SWAP(arr[j], arr[j + 1])}
+6:             |-- \textcolor{blue}{END_IF}
+7:         |-- \textcolor{blue}{END_FOR}
+8:     |-- \textcolor{blue}{END_FOR}
+    \end{Verbatim}
+    \end{document}
+    
