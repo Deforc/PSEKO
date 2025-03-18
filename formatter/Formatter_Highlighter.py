@@ -69,8 +69,8 @@ class Formatter:
                         child_line = self._format_ladder(node.children[0], 0)
                         result[-1] += f" {child_line}"
 
-                    # Если следующий дочерний элемент имеет атрибут "DO", выводим его на той же строке
-                    if len(node.children) > 1 and node.children[1].attribute == 'DO':
+                    # Если следующий дочерний элемент имеет атрибут "DO" или "THEN", выводим его на той же строке
+                    if len(node.children) > 1 and node.children[1].attribute in ['DO', 'THEN']:
                         child_line = self._format_ladder(node.children[1], 0)
                         result[-1] += f" {child_line}"
 
@@ -277,6 +277,119 @@ class Highlighter:
                 lines[i] = self._apply_color(lines[i], 'red')
         return '\n'.join(lines)
 
+
+# Подклассы для Publisher
+class LinePublisher(Publisher):
+    def convert_ansi_to_latex(self, text):
+        color_mapping = {
+            '\033[91m': r'|\textcolor{red}{',  # Красный
+            '\033[94m': r'|\textcolor{blue}{',  # Синий
+            '\033[0m': r'}|'  # Сброс цвета
+        }
+
+        for ansi_code, latex_command in color_mapping.items():
+            text = text.replace(ansi_code, latex_command)
+
+        # Экранируем символы `_`
+        text = text.replace('_', r'\_')
+
+        return text
+
+    def save_to_latex(self, text, filename="output.tex"):
+        text = self.convert_ansi_to_latex(text)
+
+        latex_document = r"""
+    \documentclass{article}
+    \usepackage{xcolor} % Для работы с цветами
+    \usepackage{listings} % Для вывода текста с цветами и переносами
+    \usepackage{geometry} % Для настройки полей
+    \geometry{a4paper, left=10mm, right=10mm, top=10mm, bottom=10mm} % Минимальные поля
+
+    % Настройка listings для переноса строк и раскраски
+    \lstset{
+        basicstyle=\ttfamily\footnotesize, % Моноширинный шрифт
+        breaklines=true, % Разрешить перенос строк
+        postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}, % Символ переноса
+        columns=fullflexible, % Гибкие колонки
+        frame=none, % Без рамки
+        xleftmargin=0pt, % Нет отступа слева
+        xrightmargin=0pt, % Нет отступа справа
+        showstringspaces=false, % Не показывать пробелы в строках
+        escapeinside=||, % Позволяет вставлять LaTeX-коды внутри листинга
+    }
+
+    \begin{document}
+    \begin{lstlisting}
+    """ + text + r"""
+    \end{lstlisting}
+    \end{document}
+    """
+
+        # Сохраняем в файл
+        with open(filename, 'w', encoding='utf-8') as file:
+            file.write(latex_document)
+
+        print(f"LaTeX file saved as {filename}")
+
+
+class LadderPublisher(Publisher):
+    pass
+
+
+class TreePublisher(Publisher):
+    pass
+
+
+# Подклассы для Highlighter
+class LineHighlighter(Highlighter):
+    pass
+
+
+class LadderHighlighter(Highlighter):
+    pass
+
+
+class TreeHighlighter(Highlighter):
+    def _highlight_terminals(self, text):
+        """
+        Раскрашивает терминалы в красный цвет, исключая символы |--.
+        """
+        lines = text.split('\n')
+        for i in range(len(lines)):
+            if lines[i].strip().startswith('Program'):
+                continue
+            if not any(keyword in lines[i] for keyword in self.color_rules.keys()):
+                # Разделяем строку на части, чтобы не окрашивать |--
+                parts = lines[i].split('|--')
+                # Окрашиваем только терминалы (после |--)
+                if len(parts) > 1:
+                    parts[1] = self._apply_color(parts[1], 'red')
+                    lines[i] = '|--'.join(parts)
+        return '\n'.join(lines)
+
+
+def create_publisher(style, text):
+    if style == 'line':
+        return LinePublisher(text)
+    elif style == 'ladder':
+        return LadderPublisher(text)
+    elif style == 'tree':
+        return TreePublisher(text)
+    else:
+        raise ValueError("Unsupported style")
+
+
+def create_highlighter(style, color_rules):
+    if style == 'line':
+        return LineHighlighter(color_rules)
+    elif style == 'ladder':
+        return LadderHighlighter(color_rules)
+    elif style == 'tree':
+        return TreeHighlighter(color_rules)
+    else:
+        raise ValueError("Unsupported style")
+
+
 if __name__ == "__main__":
     # Создаем пример AST для сортировки пузырьком
     ast = TreeNode(
@@ -328,16 +441,16 @@ if __name__ == "__main__":
     color_rules = {keyword: 'blue' for keyword in KEYWORDS}
 
     # Форматируем и раскрашиваем
-    formatter = Formatter(style='ladder')  # line/ladder/tree
-    highlighter = Highlighter(color_rules)
-
+    style = 'tree'  # line/ladder/tree
+    formatter = Formatter(style=style)
+    highlighter = create_highlighter(style, color_rules)
 
     # Извлекаем только текст из результата format
     formatted_text = formatter.format(ast)
     highlighted_text = highlighter.highlight(formatted_text)
     numbered_text = formatter.add_line_numbers(highlighted_text)
 
-    publisher = Publisher(numbered_text)
+    publisher = create_publisher(style, numbered_text)
     print("Highlighted Text:")
     print(numbered_text, "\n")
 
