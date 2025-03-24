@@ -201,7 +201,7 @@ class Publisher:
         """
         # Словарь соответствия ANSI-цветов и LaTeX-цветов
         color_mapping = {
-            '\033[91m': '\\textcolor{red}{',  # Красный
+            # '\033[91m': '\\textcolor{red}{',  # Красный
             '\033[94m': '\\textcolor{blue}{',  # Синий
             '\033[0m': '}'  # Сброс цвета
         }
@@ -258,7 +258,6 @@ class Highlighter:
     def _apply_color(self, text, color):
         # ANSI escape codes for colors
         colors = {
-            'red': '\033[91m',
             'blue': '\033[94m',
             'reset': '\033[0m'
         }
@@ -271,10 +270,10 @@ class Highlighter:
             # Пропускаем корневой узел "Program"
             if lines[i].strip().startswith('Program'):
                 continue
-            # Если строка содержит терминал (не начинается с ключевого слова)
-            if not any(keyword in lines[i] for keyword in self.color_rules.keys()):
-                # Окрашиваем всю строку в красный цвет
-                lines[i] = self._apply_color(lines[i], 'red')
+            # # Если строка содержит терминал (не начинается с ключевого слова)
+            # if not any(keyword in lines[i] for keyword in self.color_rules.keys()):
+            #     # Окрашиваем всю строку в красный цвет
+            #     lines[i] = self._apply_color(lines[i], 'red')
         return '\n'.join(lines)
 
 
@@ -282,7 +281,7 @@ class Highlighter:
 class LinePublisher(Publisher):
     def convert_ansi_to_latex(self, text):
         color_mapping = {
-            '\033[91m': r'|\textcolor{red}{',  # Красный
+            # '\033[91m': r'|\textcolor{red}{',  # Красный
             '\033[94m': r'|\textcolor{blue}{',  # Синий
             '\033[0m': r'}|'  # Сброс цвета
         }
@@ -318,8 +317,8 @@ class LinePublisher(Publisher):
         escapeinside=||, % Позволяет вставлять LaTeX-коды внутри листинга
     }
 
-    \begin{document}
-    \begin{lstlisting}
+    \begin{algorithm}
+    \begin{algorithmic}
     """ + text + r"""
     \end{lstlisting}
     \end{document}
@@ -362,9 +361,9 @@ class TreeHighlighter(Highlighter):
                 # Разделяем строку на части, чтобы не окрашивать |--
                 parts = lines[i].split('|--')
                 # Окрашиваем только терминалы (после |--)
-                if len(parts) > 1:
-                    parts[1] = self._apply_color(parts[1], 'red')
-                    lines[i] = '|--'.join(parts)
+                # if len(parts) > 1:
+                #     parts[1] = self._apply_color(parts[1], 'red')
+                #     lines[i] = '|--'.join(parts)
         return '\n'.join(lines)
 
 
