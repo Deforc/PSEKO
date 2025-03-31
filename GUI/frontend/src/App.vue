@@ -33,7 +33,7 @@ export default {
   data() {
     return {
       latexCode: '',
-      pdfUrl: '',
+      pdfUrl: '', // URL PDF-файла
     };
   },
   methods: {
@@ -43,7 +43,7 @@ export default {
     async compileLatex() {
       try {
         const response = await axios.post('/api/compile', { latex: this.latexCode });
-        this.pdfUrl = response.data.pdfUrl;
+        this.pdfUrl = response.data.pdfUrl; // Получаем URL PDF
       } catch (error) {
         console.error('Ошибка при компиляции LaTeX:', error);
       }
@@ -51,7 +51,3 @@ export default {
   },
 };
 </script>
-
-<style>
-@import 'style.css';
-</style>
