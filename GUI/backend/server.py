@@ -6,7 +6,7 @@ from pydantic import BaseModel
 import sys
 import os
 
-sys.path.append(r"C:\Users\79823\source\repos\Computer-Graphics-Algorithms\PSEKO")
+sys.path.append(os.getcwd())
 from formatter.Formatter_Highlighter import Formatter, create_highlighter
 
 app = FastAPI()
