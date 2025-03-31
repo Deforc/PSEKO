@@ -57,8 +57,8 @@ class Formatter:
             value = node.value if node.value is not None else node.attribute
             result.append(f"{indent}{value}")
         else:
-            # Если узел является FOR или IF
-            if node.nonterminal_type in ['FOR', 'IF']:
+            # Если узел является FOR, WHILE, REPEAT или IF
+            if node.nonterminal_type in ['FOR', 'IF', 'WHILE', 'REPEAT']:
                 # Выводим открывающий узел (FOR или IF)
                 result.append(f"{indent}{node.nonterminal_type}")
 
@@ -70,7 +70,7 @@ class Formatter:
                         result[-1] += f" {child_line}"
 
                     # Если следующий дочерний элемент имеет атрибут "DO" или "THEN", выводим его на той же строке
-                    if len(node.children) > 1 and node.children[1].attribute in ['DO', 'THEN']:
+                    if len(node.children) > 1 and node.children[1].attribute in ['DO', 'THEN', 'UNTIL']:
                         child_line = self._format_ladder(node.children[1], 0)
                         result[-1] += f" {child_line}"
 
@@ -121,7 +121,7 @@ class Formatter:
 
             # Обработка дочерних элементов
             for i, child in enumerate(node.children):
-                if node.nonterminal_type in ['FOR', 'IF']:
+                if node.nonterminal_type in ['FOR', 'IF', 'WHILE', 'REPEAT', 'ELSE', 'ELSEIF']:
                     # Если это первый дочерний элемент (например, условие или действие), выводим его на той же строке
                     if i == 0:
                         new_line = self._format_tree(child, 0)
