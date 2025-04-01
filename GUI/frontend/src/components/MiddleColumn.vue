@@ -1,10 +1,21 @@
 <template>
   <v-container style="height: 100%; display: flex; flex-direction: column;">
+    <!-- Toggle "Полный формат" -->
+    <div class="toggle-container">
+      <span class="toggle-label">Упрощенный формат</span>
+      <v-switch
+          v-model="isFullFormat"
+          color="primary"
+          inset
+          hide-details
+      ></v-switch>
+      <span class="toggle-label">Полный формат</span>
+    </div>
 
     <!-- Отображение LaTeX-кода -->
     <v-textarea
         readonly
-        :value="latexCode"
+        :value="displayedLatexCode"
         label="Результат работы бэкенда"
         outlined
         style="flex-grow: 1;"
@@ -17,27 +28,6 @@
     >
       Compile
     </v-btn>
-
-    <!-- Поле для ввода имени файла -->
-    <v-text-field
-        v-model="fileName"
-        label="Имя файла"
-        outlined
-        placeholder="Введите имя файла"
-        append-inner-icon="mdi-file-document"
-        class="mt-4"
-        @keydown.enter="downloadTexFile"
-    ></v-text-field>
-
-    <!-- Кнопка "Скачать .tex" -->
-    <v-btn
-        color="green"
-        class="mb-4"
-        @click="downloadTexFile"
-    >
-      Скачать .tex
-    </v-btn>
-
   </v-container>
 </template>
 
@@ -51,39 +41,38 @@ export default {
   },
   data() {
     return {
-      fileName: '', // Имя файла
+      isFullFormat: false, // Флаг для toggle
     };
   },
-  methods: {
-    downloadTexFile() {
-      if (!this.latexCode) {
-        alert('Нет данных для скачивания!');
-        return;
+  computed: {
+    displayedLatexCode() {
+      if (this.isFullFormat || !this.latexCode) {
+        return this.latexCode; // Возвращаем полный код, если toggle активен
       }
 
-      const fileName = this.fileName.trim()
-          ? `${this.fileName}.tex`
-          : 'output.tex'; // Если имя не указано, используем "output.tex"
+      // Оставляем только строки с "Program" и нумерованными строками
+      const lines = this.latexCode.split('\n');
+      const filteredLines = lines.filter((line) => {
+        return line.includes('Program') || /^\d+:/.test(line.trim());
+      });
 
-      // Создаем Blob с содержимым LaTeX-кода
-      const blob = new Blob([this.latexCode], { type: 'text/plain' });
-
-      // Создаем ссылку для скачивания
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = fileName;
-      link.click();
-
-      // Очищаем URL после скачивания
-      URL.revokeObjectURL(link.href);
+      return filteredLines.join('\n'); // Возвращаем отфильтрованный код
     },
   },
 };
 </script>
 
 <style scoped>
-/* Стили для компонента */
-.v-textarea {
-  height: calc(100% - 120px); /* Высота минус место для поля и кнопок */
+/* Стили для переключателя */
+.toggle-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.toggle-label {
+  font-size: 14px;
+  color: #555;
 }
 </style>
