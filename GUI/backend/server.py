@@ -33,11 +33,16 @@ TreeNode.update_forward_refs()
 
 
 # Ручка для обработки AST
-@app.post("/process_ast/")
-async def process_ast(ast: TreeNode):
+@app.post("/api/latex")
+async def process_ast(data: dict):
     try:
         # Преобразуем AST в строку (предполагая, что это нужно для форматирования)
-        formatted_text = format_ast_to_string(ast)
+        ast_string = data.get("text")
+        if not ast_string:
+            raise ValueError("Строка AST не найдена в запросе")
+
+        # Преобразуем строку в объект TreeNode
+        ast_object = parse_ast_from_string(ast_string)
 
         # Настройки форматирования и раскраски
         style = 'tree'  # line/ladder/tree
@@ -48,7 +53,7 @@ async def process_ast(ast: TreeNode):
         highlighter = create_highlighter(style, color_rules)
 
         # Форматируем и раскрашиваем текст
-        formatted_text = formatter.format(formatted_text)
+        formatted_text = formatter.format(ast_object)
         highlighted_text = highlighter.highlight(formatted_text)
         numbered_text = formatter.add_line_numbers(highlighted_text)
 
@@ -68,10 +73,22 @@ KEYWORDS = [
     'SELECT', 'YIELD', 'RETURN', 'NEXT', 'FROM', 'TO', 'IN'
 ]
 
+def parse_ast_from_string(ast_string: str) -> TreeNode:
+    """
+    Парсит строку в объект TreeNode.
+    """
+    # Создаем безопасный контекст для выполнения кода
+    allowed_globals = {
+        "TreeNode": TreeNode,
+        "NodeType": NodeType,
+        "__builtins__": {}
+    }
 
-def format_ast_to_string(node: TreeNode):
-    if node.type == NodeType.TERMINAL:
-        return f"{node.attribute}: {node.value}"
-    elif node.type == NodeType.NONTERMINAL:
-        children_text = "\n".join(format_ast_to_string(child) for child in node.children)
-        return f"{node.nonterminal_type}:\n{children_text}"
+    try:
+        # Выполняем строку в безопасном контексте
+        ast_object = eval(ast_string, allowed_globals, {})
+        if not isinstance(ast_object, TreeNode):
+            raise ValueError("Результат выполнения строки не является объектом TreeNode")
+        return ast_object
+    except Exception as e:
+        raise ValueError(f"Ошибка при парсинге строки AST: {str(e)}")
