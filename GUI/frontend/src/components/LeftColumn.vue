@@ -16,8 +16,27 @@
         @keydown.tab.prevent="insertTab"
     ></v-textarea>
 
+    <!-- Кнопка загрузки файла -->
+    <v-btn
+        color="green"
+        class="mb-4"
+        block
+        @click="openFileInput"
+    >
+      Загрузить текст из файла (.txt)
+    </v-btn>
+
+    <!-- Скрытый input для выбора файла -->
+    <input
+        type="file"
+        ref="fileInput"
+        accept=".txt"
+        style="display: none;"
+        @change="handleFileUpload"
+    />
+
     <!-- Подписи и цветовые пикеры -->
-    <v-row class="ma-4">
+    <v-row>
       <v-col cols="6">
         <label class="color-picker-label">Цвет ключевых слов</label>
         <v-color-picker
@@ -45,9 +64,11 @@
     <!-- Кнопка отправки -->
     <v-btn
         color="green"
-        @click="sendToBackend"
         block
-    >Публикация
+        class="mt-4"
+        @click="sendToBackend"
+    >
+      Публикация
     </v-btn>
   </v-container>
 </template>
@@ -81,6 +102,30 @@ export default {
       this.$nextTick(() => {
         textarea.setSelectionRange(start + 1, start + 1);
       });
+    },
+    openFileInput() {
+      // Открываем скрытый input для выбора файла
+      this.$refs.fileInput.click();
+    },
+    handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      // Проверяем, что файл имеет расширение .txt
+      if (!file.name.endsWith('.txt')) {
+        alert('Пожалуйста, выберите файл с расширением .txt');
+        return;
+      }
+
+      // Читаем содержимое файла
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.inputText = e.target.result; // Записываем содержимое файла в текстовое поле
+      };
+      reader.onerror = () => {
+        alert('Ошибка при чтении файла');
+      };
+      reader.readAsText(file);
     },
     async sendToBackend() {
       try {
