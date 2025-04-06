@@ -1,14 +1,8 @@
 PROGRAM
 WHILE $a \neq 0 & b \neq 0$ DO
-
-  IF $a > b$ THEN
-
-    $a \gets a \bmod b$
-
-  ELSE
-
-    $b \gets b \bmod a$
-
-  END_IF
-
+IF $a > b$ THEN
+$a \gets a \bmod b$
+ELSE
+$b \gets b \bmod a$
+END_IF
 END_WHILE
