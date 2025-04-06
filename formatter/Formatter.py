@@ -12,11 +12,6 @@ class Formatter:
             data_loaded = yaml.safe_load(stream)
         return data_loaded
 
-    def _process_expression(self, node: dict, blocks_before: int, after_expr: bool) -> str:
-        result_text: str = ''
-        result_text += node['value'] + ' '
-        return result_text
-
     def _process_nonterminal(self, node: dict, blocks_before: int) -> str:
         result_text: str = ''
 
@@ -42,11 +37,7 @@ class Formatter:
             #result_text += '---'
             for child in node['children']:
                 result_text += self._process_nonterminal(child, blocks_before + 1)
-        else:
-            result_text += '\n' + '\t' * (blocks_before + 1)
-            #result_text += '---'
-            for child in node['children']:
-                result_text += self._process_nonterminal(child, blocks_before)
+
         return result_text
 
     def _process_programm(self, node: dict) -> str:
