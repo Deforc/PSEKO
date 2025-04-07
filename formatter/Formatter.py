@@ -19,9 +19,9 @@ class Formatter:
         self.keyword_color = keyword_color
         self.comment_color = comment_color
 
-    def _colorize(self, text, keyword_color):
+    def _colorize(self, text):
         """Add ANSI color codes to text"""
-        return f"\\textcolor [HTML]{keyword_color}{text}"
+        return f"\\textcolor [HTML]{self.keyword_color}{text}"
 
 
     def _read_ast(self) -> dict:
@@ -52,10 +52,10 @@ class Formatter:
 
             # Обрабатываем комментарии (добавляем без дополнительных переносов)
             if node.get('subtype') == 'commenttext':
-                result_text += self._colorize(node['value'], self.comment_color) + ' '
+                result_text += self._colorize(node['value']) + ' '
             else:
                 # Обрабатываем ключевые слова
-                value = self._colorize(node['value'], self.keyword_color) if node['value'] in self.KEYWORDS else node[
+                value = self._colorize(node['value']) if node['value'] in self.KEYWORDS else node[
                     'value']
                 result_text += value + ' '
 
