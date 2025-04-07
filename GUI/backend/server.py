@@ -1,32 +1,58 @@
+import sys
+import os
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from utils.extractor import extract_filename, get_yaml_file_path
+
+sys.path.append(os.getcwd())
+from formatter.Formatter import Formatter
 
 app = FastAPI()
 
-# Настройка CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Разрешенный домен фронтенда
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# Модель данных Pydantic (опционально, для валидации)
 class RequestData(BaseModel):
     style: str
     text: str
     colorKeywords: str
     colorComment: str
 
-# Эндпоинт для приема данных
 @app.post("/api/latex")
 async def compile_latex(request_data: RequestData):
     print("Received data:", request_data)
-    return {
-   "latexCode": "\\documentclass{article}\n\\usepackage[utf8]{inputenc}\n\\usepackage{algorithm}\n\\usepackage{algorithmic}\n\n\\begin{document}\n\n\\begin{algorithm}\n\\caption{Bubble Sort with Multi-Line Comment}\n\\begin{algorithmic}[1]\n    \\FOR{$i \\gets 0$ \\TO $n - 1$}\n        \\FOR{$j \\gets 0$ \\TO $n - i - 2$}\n            \\STATE \\textcolor{808080}{Line 1 of comment} \\STATE \\textcolor{808080}{Line 2 of comment}\n            \\IF{$arr[j] > arr[j + 1]$}\n                \\STATE \\textcolor{0000FF}{\\textsc{Swap}} $arr[j]$ and $arr[j + 1]$\n            \\ENDIF\n        \\ENDFOR\n    \\ENDFOR\n\\end{algorithmic}\n\\end{algorithm}\n\n\\end{document}"
-}
+    chosen_file = extract_filename(request_data.text) + '.yaml'
+    print("Chosen file: ", chosen_file)
+    '''
+    Здесь должна вызываться либа ИС ДСЛ
+    И должен получаться ямлик, который мы будем загружать в форматтер
+    '''
 
+    '''
+    Здесь создание и вызов форматтера
+    '''
+
+    formatter = Formatter(chosen_file, request_data.style)
+    formatter_result = formatter.export_to_latex()
+
+    '''
+    Здесь вызов хайлайтера
+    '''
+
+    '''
+    Здесь вызов паблишера
+    '''
+
+    '''
+    Здесь ретёрним респонс с результатом паблишера
+    '''
+    return {'latexCode': formatter_result}
 # Запуск приложения
 if __name__ == "__main__":
     import uvicorn

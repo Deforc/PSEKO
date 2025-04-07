@@ -214,7 +214,7 @@ class Formatter:
 
 
 # Использование с цветами по умолчанию (ключевые слова - синие, комментарии - зеленые)
-formatter = Formatter('example8.yaml', 'ladder')
-print(formatter.get_formatted())
-latex_code = formatter.export_to_latex()
-print(latex_code)
+# formatter = Formatter('example8.yaml', 'ladder')
+# print(formatter.get_formatted())
+# latex_code = formatter.export_to_latex()
+# print(latex_code)
