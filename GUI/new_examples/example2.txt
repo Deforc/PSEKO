@@ -1,0 +1,8 @@
+// Compare a and b
+PROGRAM
+IF $a > b$ THEN
+x : $a$
+ELSE
+x : $b$
+END_IF
+OUTPUT $x$
