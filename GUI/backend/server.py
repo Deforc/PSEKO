@@ -38,7 +38,7 @@ async def compile_latex(request_data: RequestData):
     Здесь создание и вызов форматтера
     '''
 
-    formatter = Formatter(chosen_file, request_data.style)
+    formatter = Formatter(chosen_file, request_data.style, request_data.colorKeywords, request_data.colorComment)
     formatter_result = formatter.export_to_latex()
 
     '''

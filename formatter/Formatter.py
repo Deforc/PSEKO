@@ -2,16 +2,6 @@ import yaml
 
 
 class Formatter:
-    COLORS = {
-        'red': '\033[31m',
-        'green': '\033[32m',
-        'yellow': '\033[33m',
-        'blue': '\033[34m',
-        'magenta': '\033[35m',
-        'cyan': '\033[36m',
-        'white': '\033[37m',
-        'reset': '\033[0m'
-    }
 
     KEYWORDS = [
         'IF', 'THEN', 'ELSE', 'ELSEIF', 'END_IF',
@@ -22,18 +12,17 @@ class Formatter:
         'SELECT', 'YIELD', 'RETURN', 'NEXT', 'FROM', 'TO', 'IN'
     ]
 
-    def __init__(self, file_path, format_type, keyword_color='blue', comment_color='green'):
+    def __init__(self, file_path, format_type, keyword_color, comment_color):
         self.file_path = file_path
         self.format_type = format_type
         self.end_terminals = ['ELSE', 'END_IF', 'END_WHILE', 'END_FOR']
         self.keyword_color = keyword_color
         self.comment_color = comment_color
 
-    def _colorize(self, text, color):
+    def _colorize(self, text, keyword_color):
         """Add ANSI color codes to text"""
-        if color in self.COLORS:
-            return f"{self.COLORS[color]}{text}{self.COLORS['reset']}"
-        return text
+        return f"\\textcolor [HTML]{keyword_color}{text}"
+
 
     def _read_ast(self) -> dict:
         with open(self.file_path, 'r', encoding="utf-8") as stream:
@@ -117,7 +106,8 @@ class Formatter:
         :return: LaTeX-код или None если сохранено в файл
         """
         formatted_text = self.get_formatted()
-        latex_code = self._convert_to_latex(formatted_text)
+        color_comment = self.comment_color
+        latex_code = self._convert_to_latex(formatted_text, color_comment)
 
         if output_file:
             with open(output_file, 'w', encoding='utf-8') as f:
@@ -125,7 +115,7 @@ class Formatter:
             return None
         return latex_code
 
-    def _convert_to_latex(self, text: str) -> str:
+    def _convert_to_latex(self, text: str, color_comment: str) -> str:
         """Конвертирует отформатированный текст в LaTeX"""
         lines = text.split('\n')
         latex_lines = []
@@ -148,7 +138,7 @@ class Formatter:
             # Обработка комментариев
             if clean_line.startswith('//'):
                 comment = clean_line[2:].strip()
-                latex_lines.append('    ' * indent_level + f'\\STATE \\textcolor{{gray}}{{{comment}}}')
+                latex_lines.append('    ' * indent_level + f'\\STATE \\textcolor [HTML]{color_comment}{comment}')
                 continue
 
             # Разбиваем строку на токены
