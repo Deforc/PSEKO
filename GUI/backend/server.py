@@ -24,7 +24,7 @@ class RequestData(BaseModel):
 async def compile_latex(request_data: RequestData):
     print("Received data:", request_data)
     return {
-  "latexCode": "\\documentclass{article}\n\\usepackage{color}\n\\begin{document}\nStyle: tree\n\n\\textbf{PROGRAM}\nWHILE $a \\neq 0 & b \\neq 0$ DO\nIF $a > b$ THEN\n$a \\gets a \\bmod b$\nELSE\n$b \\gets b \\bmod a$\nEND_IF\nEND_WHILE\n\\textcolor[RGB]{0,0,255}{Keywords are highlighted here}\n\\textcolor[RGB]{128,128,128}{Comments are highlighted here}\n\\end{document}"
+   "latexCode": "\\documentclass{article}\n\\usepackage[utf8]{inputenc}\n\\usepackage{algorithm}\n\\usepackage{algorithmic}\n\n\\begin{document}\n\n\\begin{algorithm}\n\\caption{Bubble Sort with Multi-Line Comment}\n\\begin{algorithmic}[1]\n    \\FOR{$i \\gets 0$ \\TO $n - 1$}\n        \\FOR{$j \\gets 0$ \\TO $n - i - 2$}\n            \\STATE \\textcolor{808080}{Line 1 of comment} \\STATE \\textcolor{808080}{Line 2 of comment}\n            \\IF{$arr[j] > arr[j + 1]$}\n                \\STATE \\textcolor{0000FF}{\\textsc{Swap}} $arr[j]$ and $arr[j + 1]$\n            \\ENDIF\n        \\ENDFOR\n    \\ENDFOR\n\\end{algorithmic}\n\\end{algorithm}\n\n\\end{document}"
 }
 
 # Запуск приложения
