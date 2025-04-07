@@ -19,6 +19,8 @@ class Formatter:
             if (node['subtype'] == 'Block'):
                 result_text += self._process_block(node, blocks_before)
             else:
+                if (node['subtype'] == 'FieldDecl'):
+                    result_text += '\n' + '\t' * blocks_before
                 for child in node['children']:
                     result_text += self._process_nonterminal(child, blocks_before)
         else:
@@ -73,6 +75,6 @@ class Formatter:
         return ast
     
 #a = Formatter('ast_after.yaml', 'ladder')
-a = Formatter('example8.yaml', 'ladder')
+a = Formatter('example12.yaml', 'ladder')
 ast = a.get_formatted()
 print(ast)
