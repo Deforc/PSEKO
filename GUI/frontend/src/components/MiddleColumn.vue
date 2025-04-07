@@ -28,15 +28,12 @@
       ></v-textarea>
     </div>
 
-
     <!-- Отображение LaTeX-кода -->
-    <v-textarea
-        readonly
-        :value="displayedLatexCode"
-        label="Результат работы бэкенда"
-        outlined
-        style="flex-grow: 1;"
-    ></v-textarea>
+    <div
+        class="latex-output"
+        v-html="highlightedLatexCode"
+        style="flex-grow: 1; overflow: auto; white-space: pre-wrap; font-family: monospace;"
+    ></div>
 
     <!-- Кнопка "Compile" -->
     <v-btn
@@ -58,23 +55,54 @@ export default {
   },
   data() {
     return {
-      isFullFormat: false, // Флаг для toggle
+      isFullFormat: true, // Флаг для toggle
       fileName: '', // Имя файла
+      internalLatexCode: '', // Внутренняя переменная для хранения LaTeX-кода
     };
+  },
+  watch: {
+    // Отслеживаем изменения пропса latexCode
+    latexCode(newVal) {
+      console.log('LaTeX Code Updated:', newVal);
+      this.internalLatexCode = newVal;
+    },
   },
   computed: {
     displayedLatexCode() {
-      if (this.isFullFormat || !this.latexCode) {
-        return this.latexCode; // Возвращаем полный код, если toggle активен
+      if (!this.internalLatexCode) {
+        return ''; // Если latexCode пустой, возвращаем пустую строку
       }
 
-      // Оставляем только строки с "Program" и нумерованными строками
-      const lines = this.latexCode.split('\n');
-      const filteredLines = lines.filter((line) => {
-        return line.includes('Program') || /^\d+:/.test(line.trim());
-      });
+      if (this.isFullFormat) {
+        return this.internalLatexCode; // Возвращаем полный код, если toggle активен
+      }
 
-      return filteredLines.join('\n'); // Возвращаем отфильтрованный код
+      // Оставляем только блок с алгоритмом
+      const lines = this.internalLatexCode.split('\n');
+      let algorithmBlock = [];
+      let inAlgorithmBlock = false;
+
+      for (const line of lines) {
+        if (line.includes('\\begin{algorithm}')) {
+          inAlgorithmBlock = true; // Начало блока
+        }
+
+        if (inAlgorithmBlock) {
+          algorithmBlock.push(line); // Добавляем строки блока
+        }
+
+        if (line.includes('\\end{algorithm}')) {
+          break; // Конец блока
+        }
+      }
+
+      return algorithmBlock.join('\n'); // Возвращаем отфильтрованный код
+    },
+    highlightedLatexCode() {
+      // Простое подсвечивание синтаксиса (если нужно)
+      return this.displayedLatexCode
+          .replace(/\\[a-zA-Z]+/g, '<span style="color: blue;">$&</span>') // Команды LaTeX
+          .replace(/\{.*?\}/g, '<span style="color: green;">$&</span>'); // Аргументы команд
     },
   },
   methods: {
@@ -88,7 +116,7 @@ export default {
       this.$emit('compile-latex', requestData);
     },
     downloadTexFile() {
-      if (!this.latexCode) {
+      if (!this.internalLatexCode) {
         alert('Нет данных для скачивания!');
         return;
       }
@@ -98,7 +126,7 @@ export default {
           : 'output.tex'; // Если имя не указано, используем "output.tex"
 
       // Создаем Blob с содержимым LaTeX-кода
-      const blob = new Blob([this.latexCode], { type: 'text/plain' });
+      const blob = new Blob([this.internalLatexCode], { type: 'text/plain' });
 
       // Создаем ссылку для скачивания
       const link = document.createElement('a');
@@ -140,5 +168,15 @@ export default {
 
 .compact-textarea .v-label {
   top: 4px !important; /* Корректировка позиции лейбла */
+}
+
+/* Стиль для отображения LaTeX-кода */
+.latex-output {
+  border: 1px solid #ccc;
+  padding: 8px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 </style>
