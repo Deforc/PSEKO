@@ -180,10 +180,7 @@ class Formatter:
             else:
                 # Обычное выражение
                 expr = ' '.join(tokens)
-                if expr.startswith('$') and expr.endswith('$'):
-                    latex_lines.append('    ' * indent_level + f'\\STATE {expr}')
-                else:
-                    latex_lines.append('    ' * indent_level + f'\\STATE ${expr}$')
+                latex_lines.append('    ' * indent_level + f'\\STATE {expr}')
 
         # Собираем полный LaTeX документ
         body = '\n'.join(latex_lines)
