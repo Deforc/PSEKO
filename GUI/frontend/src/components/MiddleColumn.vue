@@ -77,13 +77,26 @@ export default {
         return this.internalLatexCode; // Возвращаем полный код, если toggle активен
       }
 
-      // Оставляем только строки с "Program" и нумерованными строками
+      // Оставляем только блок с алгоритмом
       const lines = this.internalLatexCode.split('\n');
-      const filteredLines = lines.filter((line) => {
-        return line.includes('Program') || /^\d+:/.test(line.trim());
-      });
+      let algorithmBlock = [];
+      let inAlgorithmBlock = false;
 
-      return filteredLines.join('\n'); // Возвращаем отфильтрованный код
+      for (const line of lines) {
+        if (line.includes('\\begin{algorithm}')) {
+          inAlgorithmBlock = true; // Начало блока
+        }
+
+        if (inAlgorithmBlock) {
+          algorithmBlock.push(line); // Добавляем строки блока
+        }
+
+        if (line.includes('\\end{algorithm}')) {
+          break; // Конец блока
+        }
+      }
+
+      return algorithmBlock.join('\n'); // Возвращаем отфильтрованный код
     },
     highlightedLatexCode() {
       // Простое подсвечивание синтаксиса (если нужно)
