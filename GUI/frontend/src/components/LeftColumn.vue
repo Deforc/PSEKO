@@ -137,7 +137,7 @@ export default {
         };
 
         // Отправляем запрос на бэкэнд
-        const response = await axios.post('/api/latex', requestData);
+        const response = await axios.post('http://127.0.0.1:8000/api/latex', requestData);
         this.$emit('update-latex', response.data.latexCode); // Передаем результат в родительский компонент
       } catch (error) {
         console.error('Ошибка при отправке данных:', error);
