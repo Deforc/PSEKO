@@ -1,0 +1,6 @@
+PROGRAM
+i : $0$
+WHILE $i < 3$ DO
+i : $i + 1$
+OUTPUT $i$
+END_WHILE
