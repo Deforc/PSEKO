@@ -20,10 +20,15 @@ class Formatter:
                 result_text += self._process_block(node, blocks_before)
             else:
                 for child in node['children']:
-                        result_text += self._process_nonterminal(child, blocks_before)
+                    result_text += self._process_nonterminal(child, blocks_before)
         else:
             if (node['value'] in self.end_terminals):
+                if (self.format_type == 'ladder'):
                     result_text += '\n' + '\t' * blocks_before
+                elif (self.format_type == 'string'):
+                    result_text += ' '
+                elif (self.format_type == 'tree'):
+                    result_text += '\n' + '\t' * blocks_before + '|-- '
             result_text += node['value'] + ' '
             for child in node['children']:
                 result_text += self._process_nonterminal(child, blocks_before)
@@ -33,7 +38,12 @@ class Formatter:
     def _process_block(self, node: dict, blocks_before: int) -> str:
         result_text: str = ''
         if (node['subtype'] == 'Block'):
-            result_text += '\n' + '\t' * (blocks_before + 1)
+            if (self.format_type == 'ladder'):
+                result_text += '\n' + '\t' * (blocks_before + 1)
+            elif (self.format_type == 'string'):
+                result_text += ''
+            elif (self.format_type == 'tree'):
+                result_text += '\n' + '\t' * (blocks_before + 1) + '|-- '
             #result_text += '---'
             for child in node['children']:
                 result_text += self._process_nonterminal(child, blocks_before + 1)
@@ -46,6 +56,8 @@ class Formatter:
         assert node['subtype'] == 'Program'
         #if (node['subtype'] == 'Program'):
         result_text += 'Program'
+        if (self.format_type == 'string'):
+            result_text += ' '
             #print(result_text)
         
         for child in node['children']:
