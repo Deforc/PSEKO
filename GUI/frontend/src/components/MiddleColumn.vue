@@ -58,7 +58,7 @@ export default {
   },
   data() {
     return {
-      isFullFormat: false, // Флаг для toggle
+      isFullFormat: true, // Флаг для toggle
       fileName: '', // Имя файла
     };
   },
