@@ -2,7 +2,7 @@
   <v-container style="height: 100%; display: flex; flex-direction: column;">
     <!-- Отображение PDF -->
     <iframe
-        v-if="isFullFormat && pdfUrl"
+        v-if="isFullFormat && isValidPdfUrl"
         :src="pdfUrl"
         style="flex-grow: 1; border: none;"
         width="100%"
@@ -11,7 +11,7 @@
 
     <!-- Сообщение об отсутствии PDF (после попытки компиляции) -->
     <div
-        v-else-if="isFullFormat && !pdfUrl && compilationAttempted"
+        v-else-if="isFullFormat && !isValidPdfUrl && compilationAttempted"
         style="flex-grow: 1; display: flex; justify-content: center; align-items: center;"
     >
       <p>PDF-файл недоступен</p>
@@ -30,7 +30,7 @@
 
       <!-- Кнопка "Скачать PDF" (видна только в полном формате и при наличии PDF) -->
       <v-btn
-          v-if="isFullFormat && pdfUrl"
+          v-if="isFullFormat && isValidPdfUrl"
           color="primary"
           @click="downloadPdf"
       >
@@ -68,9 +68,25 @@ export default {
       default: false, // Флаг, указывающий, была ли попытка компиляции
     },
   },
+  computed: {
+    /**
+     * Проверяет, является ли `pdfUrl` корректным:
+     * - Не пустой строкой.
+     * - Не совпадает с текущим URL страницы.
+     */
+    isValidPdfUrl() {
+      if (!this.pdfUrl || this.pdfUrl.trim() === '') return false;
+
+      // Получаем текущий URL страницы
+      const currentUrl = window.location.href;
+
+      // Проверяем, чтобы `pdfUrl` не совпадал с текущим URL
+      return this.pdfUrl !== currentUrl;
+    },
+  },
   methods: {
     downloadPdf() {
-      if (!this.pdfUrl) return;
+      if (!this.isValidPdfUrl) return;
 
       // Создаем ссылку для скачивания PDF
       const link = document.createElement('a');

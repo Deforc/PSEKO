@@ -26,6 +26,7 @@
                 :pdfUrl="pdfUrl"
                 :pdfFileName="pdfFileName"
                 :texFileName="texFileName"
+                :texUrl="texUrl"
                 :isFullFormat="true"
                 :compilationAttempted="compilationAttempted"
             />
@@ -55,6 +56,7 @@ export default {
       pdfUrl: '', // URL PDF-файла
       pdfFileName: '', // Имя PDF-файла
       texFileName: '', // Имя .tex файла
+      texUrl: '', // URL .tex файла
       compilationAttempted: false, // Флаг, указывающий, была ли попытка компиляции
     };
   },
@@ -72,12 +74,13 @@ export default {
         const response = await axios.post('http://127.0.0.1:8000/api/compile', requestData);
 
         // Проверка на наличие данных в ответе
-        if (!response.data || !response.data.pdfUrl) {
-          throw new Error('Сервер не вернул URL PDF-файла');
+        if (!response.data || !response.data.pdfUrl || !response.data.texUrl) {
+          throw new Error('Сервер не вернул необходимые URL');
         }
 
         // Сохраняем данные из ответа
         this.pdfUrl = response.data.pdfUrl;
+        this.texUrl = response.data.texUrl; // URL .tex файла
         this.pdfFileName = response.data.pdfFileName || 'document.pdf'; // Имя PDF по умолчанию
         this.texFileName = response.data.texFileName || 'document.tex'; // Имя .tex по умолчанию
       } catch (error) {
