@@ -3,6 +3,7 @@ import os
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from latex import build_pdf
 from fastapi.middleware.cors import CORSMiddleware
 from utils.extractor import extract_filename, get_yaml_file_path
 
@@ -23,6 +24,13 @@ class RequestData(BaseModel):
     text: str
     colorKeywords: str
     colorComment: str
+
+class CompileRequest(BaseModel):
+    filename: str
+    latexCode: str
+
+TEMP_DIR = "temp_latex"
+os.makedirs(TEMP_DIR, exist_ok=True)
 
 @app.post("/api/latex")
 async def compile_latex(request_data: RequestData):
@@ -53,6 +61,32 @@ async def compile_latex(request_data: RequestData):
     Здесь ретёрним респонс с результатом паблишера
     '''
     return {'latexCode': formatter_result}
+
+@app.post("/api/compile")
+async def compile_latex_to_pdf(request_data: CompileRequest):
+    try:
+        # Создаем уникальное имя файла
+        file_name = request_data.filename or "output"
+        tex_file = os.path.join(TEMP_DIR, f"{file_name}.tex")
+        pdf_file = os.path.join(TEMP_DIR, f"{file_name}.pdf")
+
+        # Записываем LaTeX-код в .tex файл
+        with open(tex_file, "w") as f:
+            f.write(request_data.latexCode)
+
+        # Компилируем LaTeX в PDF
+        pdf = build_pdf(request_data.latexCode)
+        pdf.save_to(pdf_file)
+
+        # Возвращаем путь к PDF
+        return {"texUrl": f"/static/{file_name}.tex", "pdfUrl": f"/static/{file_name}.pdf"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error compiling LaTeX: {str(e)}")
+
+from fastapi.staticfiles import StaticFiles
+app.mount("/static", StaticFiles(directory=TEMP_DIR), name="static")
+
 # Запуск приложения
 if __name__ == "__main__":
     import uvicorn

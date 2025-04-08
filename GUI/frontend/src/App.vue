@@ -58,7 +58,7 @@ export default {
     // Компиляция LaTeX-кода в PDF
     async compileLatex(requestData) {
       try {
-        const response = await axios.post('/api/compile', requestData);
+        const response = await axios.post('http://127.0.0.1:8000/api/compile', requestData);
         this.pdfUrl = response.data.pdfUrl; // Сохраняем URL PDF-файла
       } catch (error) {
         console.error('Ошибка при компиляции LaTeX:', error);
