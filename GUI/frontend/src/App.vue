@@ -22,7 +22,13 @@
 
           <!-- Правая колонка -->
           <v-col cols="4" style="overflow: auto;">
-            <RightColumn :pdfUrl="pdfUrl" />
+            <RightColumn
+                :pdfUrl="pdfUrl"
+                :pdfFileName="pdfFileName"
+                :texFileName="texFileName"
+                :isFullFormat="true"
+                :compilationAttempted="compilationAttempted"
+            />
           </v-col>
         </v-row>
       </v-container>
@@ -47,6 +53,9 @@ export default {
     return {
       latexCode: '', // LaTeX-код, полученный с бэкэнда
       pdfUrl: '', // URL PDF-файла
+      pdfFileName: '', // Имя PDF-файла
+      texFileName: '', // Имя .tex файла
+      compilationAttempted: false, // Флаг, указывающий, была ли попытка компиляции
     };
   },
   methods: {
@@ -58,10 +67,22 @@ export default {
     // Компиляция LaTeX-кода в PDF
     async compileLatex(requestData) {
       try {
+        this.compilationAttempted = true; // Устанавливаем флаг попытки компиляции
+
         const response = await axios.post('http://127.0.0.1:8000/api/compile', requestData);
-        this.pdfUrl = response.data.pdfUrl; // Сохраняем URL PDF-файла
+
+        // Проверка на наличие данных в ответе
+        if (!response.data || !response.data.pdfUrl) {
+          throw new Error('Сервер не вернул URL PDF-файла');
+        }
+
+        // Сохраняем данные из ответа
+        this.pdfUrl = response.data.pdfUrl;
+        this.pdfFileName = response.data.pdfFileName || 'document.pdf'; // Имя PDF по умолчанию
+        this.texFileName = response.data.texFileName || 'document.tex'; // Имя .tex по умолчанию
       } catch (error) {
-        console.error('Ошибка при компиляции LaTeX:', error);
+        console.error('Ошибка при компиляции LaTeX:', error.message);
+        alert('Не удалось скомпилировать LaTeX. Попробуйте еще раз.');
       }
     },
   },

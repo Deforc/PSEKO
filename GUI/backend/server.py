@@ -79,7 +79,12 @@ async def compile_latex_to_pdf(request_data: CompileRequest):
         pdf.save_to(pdf_file)
 
         # Возвращаем путь к PDF
-        return {"texUrl": f"/static/{file_name}.tex", "pdfUrl": f"/static/{file_name}.pdf"}
+        return {
+            "texUrl": f"/static/{file_name}.tex",
+            "pdfUrl": f"/static/{file_name}.pdf",
+            "texFileName": f"{file_name}.tex",
+            "pdfFileName": f"{file_name}.pdf"
+        }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error compiling LaTeX: {str(e)}")
