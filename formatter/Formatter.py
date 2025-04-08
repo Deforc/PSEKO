@@ -21,7 +21,7 @@ class Formatter:
 
     def _colorize(self, text):
         """Add ANSI color codes to text"""
-        return f"\\textcolor [HTML]{self.keyword_color}{text}"
+        return f"\\textcolor [HTML]{{{self.keyword_color}}}{{{text}}}"
 
 
     def _read_ast(self) -> dict:
@@ -55,7 +55,7 @@ class Formatter:
                 result_text += self._colorize(node['value']) + ' '
             else:
                 # Обрабатываем ключевые слова
-                value = self._colorize(node['value']) if node['value'] in self.KEYWORDS else node[
+                value = self._colorize(node['value'].replace('_', '\\_')) if node['value'] in self.KEYWORDS else node[
                     'value']
                 result_text += value + ' '
 
@@ -138,7 +138,7 @@ class Formatter:
             # Обработка комментариев
             if clean_line.startswith('//'):
                 comment = clean_line[2:].strip()
-                latex_lines.append('    ' * indent_level + f'\\STATE \\textcolor [HTML]{color_comment}{comment}')
+                latex_lines.append('    ' * indent_level + f'\\STATE \\textcolor [HTML]{{{color_comment}}}{{{comment}}}')
                 continue
 
             # Разбиваем строку на токены
