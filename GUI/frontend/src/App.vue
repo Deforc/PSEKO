@@ -24,11 +24,12 @@
           <v-col cols="4" style="overflow: auto;">
             <RightColumn
                 :pdfUrl="pdfUrl"
+                :texUrl="texUrl"
                 :pdfFileName="pdfFileName"
                 :texFileName="texFileName"
-                :texUrl="texUrl"
-                :isFullFormat="true"
+                :isFullFormat="isFullFormat"
                 :compilationAttempted="compilationAttempted"
+                :texContent="latexCode"
             />
           </v-col>
         </v-row>
@@ -54,9 +55,10 @@ export default {
     return {
       latexCode: '', // LaTeX-код, полученный с бэкэнда
       pdfUrl: '', // URL PDF-файла
+      texUrl: '', // URL .tex файла
       pdfFileName: '', // Имя PDF-файла
       texFileName: '', // Имя .tex файла
-      texUrl: '', // URL .tex файла
+      isFullFormat: true, // Формат отображения (полный или упрощенный)
       compilationAttempted: false, // Флаг, указывающий, была ли попытка компиляции
     };
   },
@@ -69,19 +71,25 @@ export default {
     // Компиляция LaTeX-кода в PDF
     async compileLatex(requestData) {
       try {
+        // Компиляция только в полном формате
+        if (!this.isFullFormat) {
+          alert('Компиляция доступна только в полном формате.');
+          return;
+        }
+
         this.compilationAttempted = true; // Устанавливаем флаг попытки компиляции
 
         const response = await axios.post('http://127.0.0.1:8000/api/compile', requestData);
 
         // Проверка на наличие данных в ответе
         if (!response.data || !response.data.pdfUrl || !response.data.texUrl) {
-          throw new Error('Сервер не вернул необходимые URL');
+          throw new Error('Сервер не вернул необходимые данные');
         }
 
         // Базовый адрес сервера
         const baseUrl = 'http://127.0.0.1:8000';
 
-        // Сохраняем данные из ответа, преобразуя относительные URL в абсолютные
+        // Сохраняем данные из ответа
         this.pdfUrl = `${baseUrl}${response.data.pdfUrl}`;
         this.texUrl = `${baseUrl}${response.data.texUrl}`;
         this.pdfFileName = response.data.pdfFileName || 'document.pdf'; // Имя PDF по умолчанию
