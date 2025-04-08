@@ -1,27 +1,10 @@
 <template>
   <v-container style="height: 100%; display: flex; flex-direction: column;">
-    <!-- Отображение PDF -->
-    <iframe
-        v-if="isFullFormat && isValidPdfUrl"
-        :src="pdfUrl"
-        style="flex-grow: 1; border: none;"
-        width="100%"
-        frameborder="0"
-    ></iframe>
-
-    <!-- Сообщение об отсутствии PDF (после попытки компиляции) -->
-    <div
-        v-else-if="isFullFormat && !isValidPdfUrl && compilationAttempted"
-        style="flex-grow: 1; display: flex; justify-content: center; align-items: center;"
-    >
-      <p>PDF-файл недоступен</p>
-    </div>
-
     <!-- Кнопки для скачивания -->
     <div style="display: flex; gap: 10px; margin-top: 10px;">
       <!-- Кнопка "Скачать .tex" -->
       <v-btn
-          v-if="texUrl"
+          v-if="isValidTexUrl"
           color="primary"
           @click="downloadTex"
       >
@@ -69,11 +52,6 @@ export default {
     },
   },
   computed: {
-    /**
-     * Проверяет, является ли `pdfUrl` корректным:
-     * - Не пустой строкой.
-     * - Не совпадает с текущим URL страницы.
-     */
     isValidPdfUrl() {
       if (!this.pdfUrl || this.pdfUrl.trim() === '') return false;
 
@@ -82,6 +60,16 @@ export default {
 
       // Проверяем, чтобы `pdfUrl` не совпадал с текущим URL
       return this.pdfUrl !== currentUrl;
+    },
+
+    isValidTexUrl() {
+      if (!this.texUrl || this.texUrl.trim() === '') return false;
+
+      // Получаем текущий URL страницы
+      const currentUrl = window.location.href;
+
+      // Проверяем, чтобы `texUrl` не совпадал с текущим URL и заканчивался на ".tex"
+      return this.texUrl !== currentUrl && this.texUrl.endsWith('.tex');
     },
   },
   methods: {
@@ -95,7 +83,7 @@ export default {
       link.click();
     },
     downloadTex() {
-      if (!this.texUrl) return;
+      if (!this.isValidTexUrl) return;
 
       // Создаем ссылку для скачивания .tex
       const link = document.createElement('a');

@@ -78,9 +78,12 @@ export default {
           throw new Error('Сервер не вернул необходимые URL');
         }
 
-        // Сохраняем данные из ответа
-        this.pdfUrl = response.data.pdfUrl;
-        this.texUrl = response.data.texUrl; // URL .tex файла
+        // Базовый адрес сервера
+        const baseUrl = 'http://127.0.0.1:8000';
+
+        // Сохраняем данные из ответа, преобразуя относительные URL в абсолютные
+        this.pdfUrl = `${baseUrl}${response.data.pdfUrl}`;
+        this.texUrl = `${baseUrl}${response.data.texUrl}`;
         this.pdfFileName = response.data.pdfFileName || 'document.pdf'; // Имя PDF по умолчанию
         this.texFileName = response.data.texFileName || 'document.tex'; // Имя .tex по умолчанию
       } catch (error) {
