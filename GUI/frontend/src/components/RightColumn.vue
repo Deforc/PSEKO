@@ -1,8 +1,12 @@
 <template>
   <v-container style="height: 100%; display: flex; flex-direction: column;">
-    <!-- Отображение LaTeX с помощью MathJax -->
-    <div v-if="isFullFormat && texContent" ref="mathContainer" style="flex-grow: 1; overflow: auto;">
-      <p v-html="renderedTex"></p>
+    <!-- Отображение PDF -->
+    <div
+        v-if="isFullFormat && isValidPdfUrl"
+        ref="pdfContainer"
+        style="flex-grow: 1; overflow: auto; position: relative;"
+    >
+      <!-- Контейнер для страниц PDF -->
     </div>
 
     <!-- Сообщение об отсутствии PDF (после попытки компиляции) -->
@@ -37,6 +41,8 @@
 </template>
 
 <script>
+import { getDocument } from 'pdfjs-dist';
+
 export default {
   props: {
     pdfUrl: {
@@ -76,31 +82,44 @@ export default {
      */
     isValidPdfUrl() {
       if (!this.pdfUrl || this.pdfUrl.trim() === '') return false;
-
-      // Получаем текущий URL страницы
       const currentUrl = window.location.href;
-
-      // Проверяем, чтобы `pdfUrl` не совпадал с текущим URL
       return this.pdfUrl !== currentUrl;
-    },
-
-    /**
-     * Возвращает содержимое .tex файла для отображения.
-     * Удаляет команды уровня документа (\documentclass, \begin{document}, \end{document}).
-     */
-    renderedTex() {
-      if (!this.texContent) return '';
-
-      // Удаляем ненужные команды
-      let content = this.texContent.replace(/\\documentclass\{.*?\}/g, '');
-      content = content.replace(/\\usepackage\{.*?\}/g, '');
-      content = content.replace(/\\begin\{document\}/g, '');
-      content = content.replace(/\\end\{document\}/g, '');
-
-      return content.trim();
     },
   },
   methods: {
+    async renderPdf(url) {
+      try {
+        // Загрузка PDF-документа
+        const loadingTask = getDocument(url);
+        const pdf = await loadingTask.promise;
+
+        // Очистка контейнера
+        this.$refs.pdfContainer.innerHTML = '';
+
+        // Отображение всех страниц PDF
+        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+          const page = await pdf.getPage(pageNumber);
+          const viewport = page.getViewport({ scale: 1.5 });
+
+          // Создание canvas для каждой страницы
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+
+          // Добавление canvas в контейнер
+          this.$refs.pdfContainer.appendChild(canvas);
+
+          // Рендеринг страницы
+          await page.render({
+            canvasContext: context,
+            viewport: viewport,
+          }).promise;
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке PDF:', error);
+      }
+    },
     downloadPdf() {
       if (!this.isValidPdfUrl) return;
 
@@ -120,11 +139,12 @@ export default {
       link.click();
     },
   },
-  mounted() {
-    // Инициализация MathJax после рендеринга
-    if (window.MathJax && this.texContent) {
-      window.MathJax.typesetPromise([this.$refs.mathContainer]);
-    }
+  watch: {
+    pdfUrl(newVal) {
+      if (newVal && this.isFullFormat && this.isValidPdfUrl) {
+        this.renderPdf(newVal); // Загружаем и отображаем PDF
+      }
+    },
   },
 };
 </script>

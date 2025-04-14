@@ -74,14 +74,7 @@ export default {
     // Компиляция LaTeX-кода в PDF
     async compileLatex(requestData) {
       try {
-        // Компиляция только в полном формате
-        if (!this.isFullFormat) {
-          alert('Компиляция доступна только в полном формате.');
-          return;
-        }
-
-        this.compilationAttempted = true; // Устанавливаем флаг попытки компиляции
-
+        this.compilationAttempted = true;
         const response = await axios.post('http://127.0.0.1:8000/api/compile', requestData);
 
         // Проверка на наличие данных в ответе
@@ -95,8 +88,8 @@ export default {
         // Сохраняем данные из ответа
         this.pdfUrl = `${baseUrl}${response.data.pdfUrl}`;
         this.texUrl = `${baseUrl}${response.data.texUrl}`;
-        this.pdfFileName = response.data.pdfFileName || 'document.pdf'; // Имя PDF по умолчанию
-        this.texFileName = response.data.texFileName || 'document.tex'; // Имя .tex по умолчанию
+        this.pdfFileName = response.data.pdfFileName || `${this.defaultFileName}.pdf`; // Имя PDF по умолчанию
+        this.texFileName = response.data.texFileName || `${this.defaultFileName}.tex`; // Имя .tex по умолчанию
       } catch (error) {
         console.error('Ошибка при компиляции LaTeX:', error.message);
         alert('Не удалось скомпилировать LaTeX. Попробуйте еще раз.');
