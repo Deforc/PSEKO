@@ -1,4 +1,4 @@
-example6.txt
+example6
 FUNC f(a, b)
 c : $a + b$
 RETURN $c$

@@ -1,4 +1,4 @@
-example10.txt
+example10
 x : $1$
 GOTO L1
 x : $0$ // skipped

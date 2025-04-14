@@ -1,4 +1,4 @@
-example3.txt
+example3
 i : $0$
 WHILE $i < 3$ DO
 i : $i + 1$

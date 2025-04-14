@@ -1,4 +1,4 @@
-example8.txt
+example8
 ITER I(n)
 n : $n + 1$
 YIELD $n$

@@ -1,4 +1,4 @@
-example12.txt
+example12
 STRUCT Point {
 x : A
 y : B

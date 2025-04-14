@@ -1,4 +1,4 @@
-example2.txt
+example2
 IF $a > b$ THEN
 x : $a$
 ELSE

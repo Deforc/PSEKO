@@ -1,4 +1,4 @@
-example20.txt
+example20
 REPEAT
 x : $x - 1$
 OUTPUT $x$

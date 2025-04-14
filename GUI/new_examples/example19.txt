@@ -1,4 +1,4 @@
-example19.txt
+example19
 FOR x IN Y DO
 x : $x^2$
 OUTPUT $x$
