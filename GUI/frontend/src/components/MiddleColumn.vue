@@ -119,6 +119,7 @@ export default {
       const requestData = {
         filename: this.fileName.trim() || 'output', // Имя файла по умолчанию
         latexCode: this.displayedLatexCode, // Текущий отображаемый LaTeX-код
+        isFullFormat: this.isFullFormat,
       };
 
       // Передаем данные на бэкэнд через событие
