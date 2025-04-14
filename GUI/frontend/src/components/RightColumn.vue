@@ -4,7 +4,6 @@
     <div
         v-if="isFullFormat && isValidPdfUrl"
         ref="pdfContainer"
-        class="latex-output"
         style="flex-grow: 1; overflow: auto; position: relative;"
     >
       <!-- Контейнер для страниц PDF -->
@@ -162,10 +161,4 @@ iframe {
   height: calc(100% - 50px); /* Высота минус место для кнопок */
 }
 
-.latex-output,
-.pdf-container {
-  overflow-x: hidden;
-  word-wrap: break-word;
-  white-space: pre-wrap;
-}
 </style>
