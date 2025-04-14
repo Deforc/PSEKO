@@ -1,4 +1,4 @@
-PROGRAM
+example19.txt
 FOR x IN Y DO
 x : $x^2$
 OUTPUT $x$

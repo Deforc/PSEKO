@@ -1,4 +1,4 @@
-PROGRAM
+example7.txt
 PROC p(x)
 x : $x * 2$
 OUTPUT $x$

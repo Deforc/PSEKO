@@ -1,4 +1,4 @@
-PROGRAM
+example5.txt
 x : $3$
 REPEAT
 x : $x - 1$

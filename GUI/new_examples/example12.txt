@@ -1,4 +1,4 @@
-PROGRAM
+example12.txt
 STRUCT Point {
 x : A
 y : B

@@ -1,4 +1,4 @@
-PROGRAM
+example9.txt
 INPUT $x$
 x : $x * 2$
 OUTPUT $x$

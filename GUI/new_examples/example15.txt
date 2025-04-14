@@ -1,3 +1,3 @@
-PROGRAM
+example15.txt
 z : $5$
 YIELD $z$

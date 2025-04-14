@@ -1,5 +1,4 @@
-// Compare a and b
-PROGRAM
+example2.txt
 IF $a > b$ THEN
 x : $a$
 ELSE

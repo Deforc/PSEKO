@@ -1,4 +1,4 @@
-Правило	Примеры
+where_rules_used.txt
 Program	1–20
 Block	1–20
 Expression	1–20

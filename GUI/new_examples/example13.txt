@@ -1,4 +1,4 @@
-PROGRAM
+example13.txt
 SELECT x IN X
 x : $x + 1$
 OUTPUT $x$
