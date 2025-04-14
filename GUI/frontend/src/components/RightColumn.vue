@@ -1,7 +1,7 @@
 <template>
   <v-container style="height: 100%; display: flex; flex-direction: column;">
     <!-- Отображение LaTeX с помощью MathJax -->
-    <div v-if="texContent" ref="mathContainer" style="flex-grow: 1; overflow: auto;">
+    <div v-if="isFullFormat && texContent" ref="mathContainer" style="flex-grow: 1; overflow: auto;">
       <p v-html="renderedTex"></p>
     </div>
 

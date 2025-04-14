@@ -35,31 +35,17 @@ os.makedirs(TEMP_DIR, exist_ok=True)
 @app.post("/api/latex")
 async def compile_latex(request_data: RequestData):
     print("Received data:", request_data)
-    chosen_file = extract_filename(request_data.text) + '.yaml'
+
+    chosen_file = os.getcwd() + '\\GUI\\yaml\\' + extract_filename(request_data.text) + '.yaml'
     print("Chosen file: ", chosen_file)
+    
     '''
     Здесь должна вызываться либа ИС ДСЛ
     И должен получаться ямлик, который мы будем загружать в форматтер
     '''
-
-    '''
-    Здесь создание и вызов форматтера
-    '''
-
     formatter = Formatter(chosen_file, request_data.style, request_data.colorKeywords, request_data.colorComment)
     formatter_result = formatter.export_to_latex()
 
-    '''
-    Здесь вызов хайлайтера
-    '''
-
-    '''
-    Здесь вызов паблишера
-    '''
-
-    '''
-    Здесь ретёрним респонс с результатом паблишера
-    '''
     return {'latexCode': formatter_result}
 
 @app.post("/api/compile")
