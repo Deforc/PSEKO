@@ -1,4 +1,3 @@
-// Example with GOTO
 PROGRAM
 x : $1$
 GOTO L1
