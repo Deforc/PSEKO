@@ -42,7 +42,13 @@
 
 <script>
 import { getDocument } from 'pdfjs-dist';
+import { GlobalWorkerOptions } from 'pdfjs-dist';
 
+// Указываем путь к worker через new URL
+GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.mjs',
+  import.meta.url
+).toString();
 export default {
   props: {
     pdfUrl: {

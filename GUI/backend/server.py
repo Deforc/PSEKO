@@ -38,7 +38,7 @@ async def compile_latex(request_data: RequestData):
 
     chosen_file = os.getcwd() + '\\GUI\\yaml\\' + extract_filename(request_data.text) + '.yaml'
     print("Chosen file: ", chosen_file)
-    
+
     '''
     Здесь должна вызываться либа ИС ДСЛ
     И должен получаться ямлик, который мы будем загружать в форматтер
