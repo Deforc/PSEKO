@@ -4,6 +4,7 @@
     <div
         v-if="isFullFormat && isValidPdfUrl"
         ref="pdfContainer"
+        class="latex-output"
         style="flex-grow: 1; overflow: auto; position: relative;"
     >
       <!-- Контейнер для страниц PDF -->
@@ -44,11 +45,11 @@
 import { getDocument } from 'pdfjs-dist';
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 
-// Указываем путь к worker через new URL
 GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.mjs',
   import.meta.url
 ).toString();
+
 export default {
   props: {
     pdfUrl: {
@@ -159,5 +160,12 @@ export default {
 /* Стили для правой колонки */
 iframe {
   height: calc(100% - 50px); /* Высота минус место для кнопок */
+}
+
+.latex-output,
+.pdf-container {
+  overflow-x: hidden;
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }
 </style>
