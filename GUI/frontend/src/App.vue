@@ -16,6 +16,7 @@
           <v-col cols="4" style="overflow: auto;">
             <MiddleColumn
                 :latexCode="latexCode"
+                :defaultFileName="defaultFileName"
                 @compile-latex="compileLatex"
             />
           </v-col>
@@ -60,12 +61,14 @@ export default {
       texFileName: '', // Имя .tex файла
       isFullFormat: true, // Формат отображения (полный или упрощенный)
       compilationAttempted: false, // Флаг, указывающий, была ли попытка компиляции
+      defaultFileName: '',
     };
   },
   methods: {
     // Обновление LaTeX-кода из левой колонки
-    updateLatex(code) {
+    updateLatex(code, firstLine) {
       this.latexCode = code;
+      this.defaultFileName = firstLine;
     },
 
     // Компиляция LaTeX-кода в PDF

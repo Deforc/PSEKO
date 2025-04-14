@@ -52,6 +52,10 @@ export default {
       type: String,
       default: '',
     },
+    defaultFileName: {
+      type: String,
+      default: '',
+    },
   },
   data() {
     return {
@@ -65,6 +69,11 @@ export default {
     latexCode(newVal) {
       console.log('LaTeX Code Updated:', newVal);
       this.internalLatexCode = newVal;
+    },
+    defaultFileName(newVal) {
+      if (newVal && !this.fileName) {
+        this.fileName = newVal;
+      }
     },
   },
   computed: {

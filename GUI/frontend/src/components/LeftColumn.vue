@@ -127,21 +127,38 @@ export default {
       };
       reader.readAsText(file);
     },
+
     async sendToBackend() {
       try {
         const requestData = {
-          style: this.selectedStyle, // Выбранный стиль
-          text: this.inputText, // Введенный текст
-          colorKeywords: this.colorKeywords.slice(1), // Убираем "#" для формата RRGGBB
-          colorComment: this.colorComment.slice(1), // Убираем "#" для формата RRGGBB
+          style: this.selectedStyle,
+          text: this.inputText,
+          colorKeywords: this.colorKeywords.slice(1),
+          colorComment: this.colorComment.slice(1),
         };
+
+        // Получаем первую строку из входного текста
+        const firstLine = this.getFirstLine(this.inputText);
 
         // Отправляем запрос на бэкэнд
         const response = await axios.post('http://127.0.0.1:8000/api/latex', requestData);
-        this.$emit('update-latex', response.data.latexCode); // Передаем результат в родительский компонент
+
+        // Передаем результат и первую строку в родительский компонент
+        this.$emit('update-latex', response.data.latexCode, firstLine);
       } catch (error) {
         console.error('Ошибка при отправке данных:', error);
       }
+    },
+
+    // Метод для получения первой строки из текста
+    getFirstLine(text) {
+      if (!text) return ''; // Если текст пустой, возвращаем пустую строку
+      const lines = text.split('\n'); // Разделяем текст по переносам строк
+      for (const line of lines) {
+        const trimmedLine = line.trim(); // Убираем пробелы
+        if (trimmedLine) return trimmedLine; // Возвращаем первую непустую строку
+      }
+      return ''; // Если нет непустых строк
     },
   },
 };
