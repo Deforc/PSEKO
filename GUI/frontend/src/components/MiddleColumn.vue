@@ -40,7 +40,7 @@
         color="success"
         @click="compileLatex"
     >
-      Compile
+      Компиляция
     </v-btn>
   </v-container>
 </template>
