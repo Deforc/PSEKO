@@ -74,25 +74,26 @@ export default {
     // Компиляция LaTeX-кода в PDF
     async compileLatex(requestData) {
       try {
-        this.compilationAttempted = true;
+        this.compilationAttempted = true; // Устанавливаем флаг попытки компиляции
+
         const response = await axios.post('http://127.0.0.1:8000/api/compile', requestData);
 
-        // Проверка на наличие данных в ответе
-        if (!response.data || !response.data.pdfUrl || !response.data.texUrl) {
-          throw new Error('Сервер не вернул необходимые данные');
+        // Проверяем, что ответ содержит данные
+        if (!response.data) {
+          throw new Error('Сервер не вернул данные');
         }
 
         // Базовый адрес сервера
         const baseUrl = 'http://127.0.0.1:8000';
 
-        // Сохраняем данные из ответа
-        this.pdfUrl = `${baseUrl}${response.data.pdfUrl}`;
-        this.texUrl = `${baseUrl}${response.data.texUrl}`;
-        this.pdfFileName = response.data.pdfFileName || `${this.defaultFileName}.pdf`; // Имя PDF по умолчанию
-        this.texFileName = response.data.texFileName || `${this.defaultFileName}.tex`; // Имя .tex по умолчанию
+        // Сохраняем данные из ответа, если они существуют
+        this.pdfUrl = response.data.pdfUrl ? `${baseUrl}${response.data.pdfUrl}` : '';
+        this.texUrl = response.data.texUrl ? `${baseUrl}${response.data.texUrl}` : '';
+        this.pdfFileName = response.data.pdfFileName || `${this.defaultFileName}.pdf`;
+        this.texFileName = response.data.texFileName || `${this.defaultFileName}.tex`;
+
       } catch (error) {
         console.error('Ошибка при компиляции LaTeX:', error.message);
-        alert('Не удалось скомпилировать LaTeX. Попробуйте еще раз.');
       }
     },
   },
