@@ -83,7 +83,7 @@ class Formatter:
         result_text: str = ''
         blocks_before: int = 0
         assert node['subtype'] == 'Program'
-        result_text += 'Program'
+        result_text += f'{node["children"][0]["value"]}'
         if (self.format_type == 'string'):
             result_text += ' '
 
@@ -201,7 +201,7 @@ class Formatter:
 
 
 # Использование с цветами по умолчанию (ключевые слова - синие, комментарии - зеленые)
-# formatter = Formatter('example8.yaml', 'ladder')
-# print(formatter.get_formatted())
-# latex_code = formatter.export_to_latex()
-# print(latex_code)
+formatter = Formatter('example2.yaml', 'ladder')
+print(formatter.get_formatted())
+latex_code = formatter.export_to_latex()
+print(latex_code)
