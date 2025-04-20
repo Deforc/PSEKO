@@ -3,21 +3,11 @@ subtype: 'Program'
 value: ''
 attribute: 'example12'
 children:
-  - type: 'NONTERMINAL'
-    subtype: 'Block'
-    value: ''
-    attribute: ''
-    children:
-      - type: 'NONTERMINAL'
-        subtype: 'Comment'
-        value: ''
-        attribute: ''
-        children:
-          - type: 'TOKEN'
-            subtype: 'commenttext'
-            value: '// Structure with fields'
-            attribute: ''
-            children: []
+  - type: 'TOKEN'
+    subtype: 'name'
+    value: 'example12'
+    attribute: 'example12'
+    children: []
   - type: 'NONTERMINAL'
     subtype: 'Block'
     value: ''

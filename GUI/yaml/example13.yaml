@@ -3,6 +3,11 @@ subtype: 'Program'
 value: ''
 attribute: 'example13'
 children:
+  - type: 'TOKEN'
+    subtype: 'name'
+    value: 'example13'
+    attribute: 'example13'
+    children: []
   - type: 'NONTERMINAL'
     subtype: 'Block'
     value: ''
@@ -79,8 +84,8 @@ children:
                     attribute: ''
                     children: []
           - type: 'TOKEN'
-            subtype: ':'
-            value: ':'
+            subtype: '='
+            value: '='
             attribute: ''
             children: []
           - type: 'NONTERMINAL'

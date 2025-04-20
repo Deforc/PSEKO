@@ -3,6 +3,51 @@ subtype: 'Program'
 value: ''
 attribute: 'example5'
 children:
+  - type: 'TOKEN'
+    subtype: 'name'
+    value: 'example5'
+    attribute: 'example5'
+    children: []
+  - type: 'NONTERMINAL'
+    subtype: 'Block'
+    value: ''
+    attribute: ''
+    children:
+      - type: 'NONTERMINAL'
+        subtype: 'Assignment'
+        value: ''
+        attribute: ''
+        children:
+          - type: 'NONTERMINAL'
+            subtype: 'Variable'
+            value: ''
+            attribute: ''
+            children:
+              - type: 'NONTERMINAL'
+                subtype: 'Identifier'
+                value: ''
+                attribute: ''
+                children:
+                  - type: 'TOKEN'
+                    subtype: 'name'
+                    value: 'x'
+                    attribute: ''
+                    children: []
+          - type: 'TOKEN'
+            subtype: '='
+            value: '='
+            attribute: ''
+            children: []
+          - type: 'NONTERMINAL'
+            subtype: 'Expression'
+            value: ''
+            attribute: ''
+            children:
+              - type: 'TOKEN'
+                subtype: 'exprtext'
+                value: '$3$'
+                attribute: ''
+                children: []
   - type: 'NONTERMINAL'
     subtype: 'Block'
     value: ''
@@ -14,13 +59,58 @@ children:
         attribute: ''
         children:
           - type: 'NONTERMINAL'
-            subtype: 'LB'
+            subtype: 'LA'
             value: ''
             attribute: ''
             children:
               - type: 'TOKEN'
-                subtype: 'WHILE'
-                value: 'WHILE'
+                subtype: 'REPEAT'
+                value: 'REPEAT'
+                attribute: ''
+                children: []
+              - type: 'NONTERMINAL'
+                subtype: 'Block'
+                value: ''
+                attribute: ''
+                children:
+                  - type: 'NONTERMINAL'
+                    subtype: 'Assignment'
+                    value: ''
+                    attribute: ''
+                    children:
+                      - type: 'NONTERMINAL'
+                        subtype: 'Variable'
+                        value: ''
+                        attribute: ''
+                        children:
+                          - type: 'NONTERMINAL'
+                            subtype: 'Identifier'
+                            value: ''
+                            attribute: ''
+                            children:
+                              - type: 'TOKEN'
+                                subtype: 'name'
+                                value: 'x'
+                                attribute: ''
+                                children: []
+                      - type: 'TOKEN'
+                        subtype: '='
+                        value: '='
+                        attribute: ''
+                        children: []
+                      - type: 'NONTERMINAL'
+                        subtype: 'Expression'
+                        value: ''
+                        attribute: ''
+                        children:
+                          - type: 'TOKEN'
+                            subtype: 'exprtext'
+                            value: '$x - 1$'
+                            attribute: ''
+                            children: []
+              - type: 'TOKEN'
+                subtype: 'UNTIL'
+                value: 'UNTIL'
                 attribute: ''
                 children: []
               - type: 'NONTERMINAL'
@@ -30,86 +120,6 @@ children:
                 children:
                   - type: 'TOKEN'
                     subtype: 'exprtext'
-                    value: '$b \neq 0$'
+                    value: '$x = 0$'
                     attribute: ''
                     children: []
-              - type: 'TOKEN'
-                subtype: 'DO'
-                value: 'DO'
-                attribute: ''
-                children: []
-              - type: 'NONTERMINAL'
-                subtype: 'Block'
-                value: ''
-                attribute: ''
-                children:
-                  - type: 'NONTERMINAL'
-                    subtype: 'Expression'
-                    value: ''
-                    attribute: ''
-                    children:
-                      - type: 'TOKEN'
-                        subtype: 'exprtext'
-                        value: '$temp \gets b$'
-                        attribute: ''
-                        children: []
-              - type: 'NONTERMINAL'
-                subtype: 'Block'
-                value: ''
-                attribute: ''
-                children:
-                  - type: 'NONTERMINAL'
-                    subtype: 'Expression'
-                    value: ''
-                    attribute: ''
-                    children:
-                      - type: 'TOKEN'
-                        subtype: 'exprtext'
-                        value: '$b \gets a \bmod b$'
-                        attribute: ''
-                        children: []
-              - type: 'NONTERMINAL'
-                subtype: 'Block'
-                value: ''
-                attribute: ''
-                children:
-                  - type: 'NONTERMINAL'
-                    subtype: 'Expression'
-                    value: ''
-                    attribute: ''
-                    children:
-                      - type: 'TOKEN'
-                        subtype: 'exprtext'
-                        value: '$a \gets temp$'
-                        attribute: ''
-                        children: []
-              - type: 'TOKEN'
-                subtype: 'END_WHILE'
-                value: 'END_WHILE'
-                attribute: ''
-                children: []
-  - type: 'NONTERMINAL'
-    subtype: 'Block'
-    value: ''
-    attribute: ''
-    children:
-      - type: 'NONTERMINAL'
-        subtype: 'Return'
-        value: ''
-        attribute: ''
-        children:
-          - type: 'TOKEN'
-            subtype: 'RETURN'
-            value: 'RETURN'
-            attribute: ''
-            children: []
-          - type: 'NONTERMINAL'
-            subtype: 'Expression'
-            value: ''
-            attribute: ''
-            children:
-              - type: 'TOKEN'
-                subtype: 'exprtext'
-                value: '$a$'
-                attribute: ''
-                children: []

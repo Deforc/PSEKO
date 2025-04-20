@@ -26,6 +26,7 @@ class RequestData(BaseModel):
     colorComment: str
 
 class CompileRequest(BaseModel):
+    isFullFormat: bool
     filename: str
     latexCode: str
 
@@ -55,22 +56,25 @@ async def compile_latex_to_pdf(request_data: CompileRequest):
         file_name = request_data.filename or "output"
         tex_file = os.path.join(TEMP_DIR, f"{file_name}.tex")
         pdf_file = os.path.join(TEMP_DIR, f"{file_name}.pdf")
-
+        response_json = {
+            "texUrl": f"/static/{file_name}.tex",
+            "pdfUrl": None,
+            "texFileName": f"{file_name}.tex",
+            "pdfFileName": None
+        }
         # Записываем LaTeX-код в .tex файл
         with open(tex_file, "w") as f:
             f.write(request_data.latexCode)
 
         # Компилируем LaTeX в PDF
-        pdf = build_pdf(request_data.latexCode)
-        pdf.save_to(pdf_file)
+        if request_data.isFullFormat:
+            pdf = build_pdf(request_data.latexCode)
+            pdf.save_to(pdf_file)
+            response_json["pdfUrl"] = f"/static/{file_name}.pdf"
+            response_json["pdfFileName"] = f"{file_name}.pdf"
 
-        # Возвращаем путь к PDF
-        return {
-            "texUrl": f"/static/{file_name}.tex",
-            "pdfUrl": f"/static/{file_name}.pdf",
-            "texFileName": f"{file_name}.tex",
-            "pdfFileName": f"{file_name}.pdf"
-        }
+            # Возвращаем путь к PDF
+        return response_json
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error compiling LaTeX: {str(e)}")

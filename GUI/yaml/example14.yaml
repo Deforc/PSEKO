@@ -3,21 +3,11 @@ subtype: 'Program'
 value: ''
 attribute: 'example14'
 children:
-  - type: 'NONTERMINAL'
-    subtype: 'Block'
-    value: ''
-    attribute: ''
-    children:
-      - type: 'NONTERMINAL'
-        subtype: 'Comment'
-        value: ''
-        attribute: ''
-        children:
-          - type: 'TOKEN'
-            subtype: 'commenttext'
-            value: '// Return sum of two vars'
-            attribute: ''
-            children: []
+  - type: 'TOKEN'
+    subtype: 'name'
+    value: 'example14'
+    attribute: 'example14'
+    children: []
   - type: 'NONTERMINAL'
     subtype: 'Block'
     value: ''
@@ -44,8 +34,8 @@ children:
                     attribute: ''
                     children: []
           - type: 'TOKEN'
-            subtype: ':'
-            value: ':'
+            subtype: '='
+            value: '='
             attribute: ''
             children: []
           - type: 'NONTERMINAL'
@@ -84,8 +74,8 @@ children:
                     attribute: ''
                     children: []
           - type: 'TOKEN'
-            subtype: ':'
-            value: ':'
+            subtype: '='
+            value: '='
             attribute: ''
             children: []
           - type: 'NONTERMINAL'

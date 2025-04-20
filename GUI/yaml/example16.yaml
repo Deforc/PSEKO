@@ -3,21 +3,11 @@ subtype: 'Program'
 value: ''
 attribute: 'example16'
 children:
-  - type: 'NONTERMINAL'
-    subtype: 'Block'
-    value: ''
-    attribute: ''
-    children:
-      - type: 'NONTERMINAL'
-        subtype: 'Comment'
-        value: ''
-        attribute: ''
-        children:
-          - type: 'TOKEN'
-            subtype: 'commenttext'
-            value: '// Loop with NEXT FOR'
-            attribute: ''
-            children: []
+  - type: 'TOKEN'
+    subtype: 'name'
+    value: 'example16'
+    attribute: 'example16'
+    children: []
   - type: 'NONTERMINAL'
     subtype: 'Block'
     value: ''

@@ -15,7 +15,7 @@ class Formatter:
     def __init__(self, file_path, format_type, keyword_color, comment_color):
         self.file_path = file_path
         self.format_type = format_type
-        self.end_terminals = ['ELSE', 'END_IF', 'END_WHILE', 'END_FOR']
+        self.end_terminals = ['ELSE', 'END_IF', 'END_WHILE', 'END_FOR', 'UNTIL', 'END_FUNC', 'END_PROC']
         self.keyword_color = keyword_color
         self.comment_color = comment_color
 
@@ -83,7 +83,8 @@ class Formatter:
         result_text: str = ''
         blocks_before: int = 0
         assert node['subtype'] == 'Program'
-        result_text += f'{node["children"][0]["value"]}'
+        # result_text += f'{node["children"][0]["value"]}'
+        self.caption = node["children"][0]["value"]
         if (self.format_type == 'string'):
             result_text += ' '
 
@@ -106,6 +107,7 @@ class Formatter:
         :return: LaTeX-код или None если сохранено в файл
         """
         formatted_text = self.get_formatted()
+        print(formatted_text)
         color_comment = self.comment_color
         latex_code = self._convert_to_latex(formatted_text, color_comment)
 
@@ -124,17 +126,20 @@ class Formatter:
         if lines and lines[0].strip() == 'Program':
             lines = lines[1:]
 
+
+
         for line in lines:
             if not line.strip():
                 continue
 
             # Определяем уровень отступа
             current_indent = len(line) - len(line.lstrip())
-            indent_level = current_indent // 4
+            indent_level = current_indent // 2
 
             # Удаляем ANSI коды цветов
             clean_line = self._remove_ansi_codes(line.strip())
-
+            # Добавляем отступы
+            indent = '\\hspace{' + str(indent_level * 4) + 'mm}'
             # Обработка комментариев
             if clean_line.startswith('//'):
                 comment = clean_line[2:].strip()
@@ -147,33 +152,35 @@ class Formatter:
                 continue
 
             # Обработка конструкций
-            if tokens[0] == 'FOR':
-                condition = ' '.join(t for t in tokens[1:] if t != 'DO')
-                latex_lines.append('    ' * indent_level + f'\\FOR{{{condition}}}')
-                indent_level += 1
-            elif tokens[0] == 'IF':
+            if tokens[0] == 'IF':
                 condition = ' '.join(t for t in tokens[1:] if t != 'THEN')
-                latex_lines.append('    ' * indent_level + f'\\IF{{{condition}}}')
-                indent_level += 1
+                latex_lines.append(
+                    f'\\STATE {indent} \\textcolor [HTML]{{0000FF}}{{IF}} {condition} \\textcolor [HTML]{{0000FF}}{{THEN}}')
+            elif tokens[0] == 'ELSE':
+                latex_lines.append(f'\\STATE {indent} \\textcolor [HTML]{{0000FF}}{{ELSE}}')
+            elif tokens[0] == 'END_IF':
+                latex_lines.append(f'\\STATE {indent} \\textcolor [HTML]{{0000FF}}{{END\_IF}}')
+            elif tokens[0] == 'FOR':
+                condition = ' '.join(t for t in tokens[1:] if t != 'DO')
+                latex_lines.append(
+                    f'\\STATE {indent} \\textcolor [HTML]{{0000FF}}{{FOR}} {condition} \\textcolor [HTML]{{0000FF}}{{DO}}')
+            elif tokens[0] == 'END_FOR':
+                latex_lines.append(f'\\STATE {indent} \\textcolor [HTML]{{0000FF}}{{END\_FOR}}')
             elif tokens[0] == 'WHILE':
                 condition = ' '.join(t for t in tokens[1:] if t != 'DO')
-                latex_lines.append('    ' * indent_level + f'\\WHILE{{{condition}}}')
-                indent_level += 1
-            elif tokens[0] in ['END_IF', 'END_FOR', 'END_WHILE']:
-                indent_level -= 1
-                latex_lines.append('    ' * indent_level + f'\\{tokens[0].replace("END_", "END")}')
-            elif tokens[0] == 'NEXT':
-                latex_lines.append('    ' * indent_level + '\\BREAK')
-            elif tokens[0] == 'RETURN':
-                value = ' '.join(tokens[1:]) if len(tokens) > 1 else ''
-                latex_lines.append('    ' * indent_level + f'\\RETURN {value}')
+                latex_lines.append(
+                    f'\\STATE {indent} \\textcolor [HTML]{{0000FF}}{{WHILE}} {condition} \\textcolor [HTML]{{0000FF}}{{DO}}')
+            elif tokens[0] == 'END_WHILE':
+                latex_lines.append(f'\\STATE {indent} \\textcolor [HTML]{{0000FF}}{{END\_WHILE}}')
             else:
                 # Обычное выражение
                 expr = ' '.join(tokens)
-                latex_lines.append('    ' * indent_level + f'\\STATE {expr}')
+                latex_lines.append(f'\\STATE {indent} {expr}')
 
         # Собираем полный LaTeX документ
+
         body = '\n'.join(latex_lines)
+        print(body)
         return f"""\\documentclass{{article}}
 \\usepackage[utf8]{{inputenc}}
 \\usepackage[english,russian]{{babel}}
@@ -185,7 +192,7 @@ class Formatter:
 \\begin{{document}}
 
 \\begin{{algorithm}}
-\\caption{{Program}}
+\\caption{{{self.caption}}}
 \\begin{{algorithmic}}[1]
 {body}
 \\end{{algorithmic}}
@@ -201,7 +208,7 @@ class Formatter:
 
 
 # Использование с цветами по умолчанию (ключевые слова - синие, комментарии - зеленые)
-formatter = Formatter('example2.yaml', 'ladder')
-print(formatter.get_formatted())
-latex_code = formatter.export_to_latex()
-print(latex_code)
+# formatter = Formatter('example2.yaml', 'ladder',)
+# print(formatter.get_formatted())
+# latex_code = formatter.export_to_latex()
+# print(latex_code)
