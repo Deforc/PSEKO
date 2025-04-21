@@ -9,7 +9,7 @@ class Formatter:
         'WHILE', 'END_WHILE', 'FUNC', 'END_FUNC',
         'PROC', 'END_PROC', 'ITERATOR', 'END_ITERATOR',
         'INPUT', 'OUTPUT', 'GOTO', 'ARRAY', 'STRUCT',
-        'SELECT', 'YIELD', 'RETURN', 'NEXT', 'FROM', 'TO', 'IN', 'OF', 'CALL'
+        'SELECT', 'YIELD', 'RETURN', 'NEXT', 'FROM', 'TO', 'IN', 'OF'
     ]
 
     def __init__(self, file_path, format_type, keyword_color, comment_color):
