@@ -71,7 +71,7 @@ export default {
       this.internalLatexCode = newVal;
     },
     defaultFileName(newVal) {
-      if (newVal && !this.fileName) {
+      if (newVal) {
         this.fileName = newVal;
       }
     },

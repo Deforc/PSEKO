@@ -143,8 +143,16 @@ export default {
         // Отправляем запрос на бэкэнд
         const response = await axios.post('http://127.0.0.1:8000/api/latex', requestData);
 
+        // Обновляем локальное состояние
+        this.inputText = this.inputText;
+        this.selectedStyle = this.selectedStyle;
+        this.colorKeywords = this.colorKeywords;
+        this.colorComment = this.colorComment;
+
         // Передаем результат и первую строку в родительский компонент
         this.$emit('update-latex', response.data.latexCode, firstLine);
+        // Эмитим первую строку как имя файла по умолчанию
+        this.$emit('update-filename', firstLine);
       } catch (error) {
         console.error('Ошибка при отправке данных:', error);
       }
