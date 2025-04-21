@@ -225,8 +225,8 @@ class Formatter:
         return ansi_escape.sub('', text)
 
 
-# Использование с цветами по умолчанию (ключевые слова - синие, комментарии - зеленые)
-formatter = Formatter('example21.yaml', format_type='ladder', keyword_color='0000FF', comment_color='008000')
-# print(formatter.get_formatted())
-latex_code = formatter.export_to_latex()
-print(latex_code)
+# # Использование с цветами по умолчанию (ключевые слова - синие, комментарии - зеленые)
+# formatter = Formatter('example21.yaml', format_type='ladder', keyword_color='0000FF', comment_color='008000')
+# # print(formatter.get_formatted())
+# latex_code = formatter.export_to_latex()
+# print(latex_code)
